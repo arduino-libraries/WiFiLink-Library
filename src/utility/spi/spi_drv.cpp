@@ -19,7 +19,7 @@
 
 #include "Arduino.h"
 #include <SPI.h>
-#include "utility/spi_drv.h"                   
+#include "spi_drv.h"                   
 #include "pins_arduino.h"
 //#define _DEBUG_
 extern "C" {
@@ -58,19 +58,19 @@ void SpiDrv::end() {
     SPI.end();
 }
 
-void SpiDrv::spiSlaveSelect()
+void SpiDrv::commSlaveSelect()
 {
     digitalWrite(SLAVESELECT,LOW);
 }
 
 
-void SpiDrv::spiSlaveDeselect()
+void SpiDrv::commSlaveDeselect()
 {
     digitalWrite(SLAVESELECT,HIGH);
 }
 
 
-char SpiDrv::spiTransfer(volatile char data)
+char SpiDrv::commTransfer(volatile char data)
 {
     char result = SPI.transfer(data);
     DELAY_TRANSFER();
@@ -78,7 +78,7 @@ char SpiDrv::spiTransfer(volatile char data)
     return result;                    // return the received byte
 }
 
-int SpiDrv::waitSpiChar(unsigned char waitChar)
+int SpiDrv::waitCommChar(unsigned char waitChar)
 {
     int timeout = TIMEOUT_CHAR;
     unsigned char _readChar = 0;
@@ -107,7 +107,7 @@ char SpiDrv::readChar()
 	return readChar;
 }
 
-#define WAIT_START_CMD(x) waitSpiChar(START_CMD)
+#define WAIT_START_CMD(x) waitCommChar(START_CMD)
 
 #define IF_CHECK_START_CMD(x)                      \
     if (!WAIT_START_CMD(_data))                 \
@@ -144,7 +144,7 @@ void SpiDrv::waitForSlaveReady()
 void SpiDrv::getParam(uint8_t* param)
 {
     // Get Params data
-    *param = spiTransfer(DUMMY_DATA);
+    *param = commTransfer(DUMMY_DATA);
     DELAY_TRANSFER();
 }
 
@@ -163,7 +163,7 @@ int SpiDrv::waitResponseCmd(uint8_t cmd, uint8_t numParam, uint8_t* param, uint8
             for (ii=0; ii<(*param_len); ++ii)
             {
                 // Get Params data
-                //param[ii] = spiTransfer(DUMMY_DATA);
+                //param[ii] = commTransfer(DUMMY_DATA);
                 getParam(&param[ii]);
             } 
         }         
@@ -189,7 +189,7 @@ int SpiDrv::waitResponse(uint8_t cmd, uint8_t numParam, uint8_t* param, uint16_t
             for (ii=0; ii<(*param_len); ++ii)
             {
                 // Get Params data
-                param[ii] = spiTransfer(DUMMY_DATA);
+                param[ii] = commTransfer(DUMMY_DATA);
             } 
         }         
 
@@ -216,7 +216,7 @@ int SpiDrv::waitResponseData16(uint8_t cmd, uint8_t* param, uint16_t* param_len)
             for (ii=0; ii<(*param_len); ++ii)
             {
                 // Get Params data
-                param[ii] = spiTransfer(DUMMY_DATA);
+                param[ii] = commTransfer(DUMMY_DATA);
             } 
         }         
 
@@ -242,7 +242,7 @@ int SpiDrv::waitResponseData8(uint8_t cmd, uint8_t* param, uint8_t* param_len)
             for (ii=0; ii<(*param_len); ++ii)
             {
                 // Get Params data
-                param[ii] = spiTransfer(DUMMY_DATA);
+                param[ii] = commTransfer(DUMMY_DATA);
             } 
         }         
 
@@ -271,7 +271,7 @@ int SpiDrv::waitResponseParams(uint8_t cmd, uint8_t numParam, tParam* params)
                 for (ii=0; ii<params[i].paramLen; ++ii)
                 {
                     // Get Params data
-                    params[i].param[ii] = spiTransfer(DUMMY_DATA);
+                    params[i].param[ii] = commTransfer(DUMMY_DATA);
                 } 
             }
         } else
@@ -317,7 +317,7 @@ int SpiDrv::waitResponse(uint8_t cmd, tParam* params, uint8_t* numParamRead, uin
                 for (ii=0; ii<params[i].paramLen; ++ii)
                 {
                     // Get Params data
-                    params[i].param[ii] = spiTransfer(DUMMY_DATA);
+                    params[i].param[ii] = commTransfer(DUMMY_DATA);
                 } 
             }
         } else
@@ -360,9 +360,9 @@ int SpiDrv::waitResponse(uint8_t cmd, uint8_t* numParamRead, uint8_t** params, u
             	uint8_t paramLen = readParamLen8();
                 for (ii=0; ii<paramLen; ++ii)
                 {
-                	//ssid[ii] = spiTransfer(DUMMY_DATA);
+                	//ssid[ii] = commTransfer(DUMMY_DATA);
                     // Get Params data
-                    index[i][ii] = (uint8_t)spiTransfer(DUMMY_DATA);
+                    index[i][ii] = (uint8_t)commTransfer(DUMMY_DATA);
 
                 }
                 index[i][ii]=0;
@@ -388,30 +388,30 @@ void SpiDrv::sendParam(uint8_t* param, uint8_t param_len, uint8_t lastParam)
     // Send Spi param data
     for (i=0; i<param_len; ++i)
     {
-        spiTransfer(param[i]);
+        commTransfer(param[i]);
     }
 
     // if lastParam==1 Send Spi END CMD
     if (lastParam == 1)
-        spiTransfer(END_CMD);
+        commTransfer(END_CMD);
 }
 
 void SpiDrv::sendParamLen8(uint8_t param_len)
 {
     // Send Spi paramLen
-    spiTransfer(param_len);
+    commTransfer(param_len);
 }
 
 void SpiDrv::sendParamLen16(uint16_t param_len)
 {
     // Send Spi paramLen
-    spiTransfer((uint8_t)((param_len & 0xff00)>>8));
-    spiTransfer((uint8_t)(param_len & 0xff));
+    commTransfer((uint8_t)((param_len & 0xff00)>>8));
+    commTransfer((uint8_t)(param_len & 0xff));
 }
 
 uint8_t SpiDrv::readParamLen8(uint8_t* param_len)
 {
-    uint8_t _param_len = spiTransfer(DUMMY_DATA);
+    uint8_t _param_len = commTransfer(DUMMY_DATA);
     if (param_len != NULL)
     {
         *param_len = _param_len;
@@ -421,7 +421,7 @@ uint8_t SpiDrv::readParamLen8(uint8_t* param_len)
 
 uint16_t SpiDrv::readParamLen16(uint16_t* param_len)
 {
-    uint16_t _param_len = spiTransfer(DUMMY_DATA)<<8 | (spiTransfer(DUMMY_DATA)& 0xff);
+    uint16_t _param_len = commTransfer(DUMMY_DATA)<<8 | (commTransfer(DUMMY_DATA)& 0xff);
     if (param_len != NULL)
     {
         *param_len = _param_len;
@@ -440,12 +440,12 @@ void SpiDrv::sendBuffer(uint8_t* param, uint16_t param_len, uint8_t lastParam)
     // Send Spi param data
     for (i=0; i<param_len; ++i)
     {
-        spiTransfer(param[i]);
+        commTransfer(param[i]);
     }
 
     // if lastParam==1 Send Spi END CMD
     if (lastParam == 1)
-        spiTransfer(END_CMD);
+        commTransfer(END_CMD);
 }
 
 
@@ -454,12 +454,12 @@ void SpiDrv::sendParam(uint16_t param, uint8_t lastParam)
     // Send Spi paramLen
     sendParamLen8(2);
 
-    spiTransfer((uint8_t)((param & 0xff00)>>8));
-    spiTransfer((uint8_t)(param & 0xff));
+    commTransfer((uint8_t)((param & 0xff00)>>8));
+    commTransfer((uint8_t)(param & 0xff));
 
     // if lastParam==1 Send Spi END CMD
     if (lastParam == 1)
-        spiTransfer(END_CMD);
+        commTransfer(END_CMD);
 }
 
 /* Cmd Struct Message */
@@ -472,25 +472,23 @@ void SpiDrv::sendParam(uint16_t param, uint8_t lastParam)
 void SpiDrv::sendCmd(uint8_t cmd, uint8_t numParam)
 {
     // Send Spi START CMD
-    spiTransfer(START_CMD);
+    commTransfer(START_CMD);
 
     //waitForSlaveSign();
     //wait the interrupt trigger on slave
     delayMicroseconds(SPI_START_CMD_DELAY);
 
     // Send Spi C + cmd
-    spiTransfer(cmd & ~(REPLY_FLAG));
+    commTransfer(cmd & ~(REPLY_FLAG));
 
     // Send Spi totLen
-    //spiTransfer(totLen);
+    //commTransfer(totLen);
 
     // Send Spi numParam
-    spiTransfer(numParam);
+    commTransfer(numParam);
 
     // If numParam == 0 send END CMD
     if (numParam == 0)
-        spiTransfer(END_CMD);
+        commTransfer(END_CMD);
 
 }
-
-SpiDrv spiDrv;

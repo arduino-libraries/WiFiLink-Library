@@ -20,6 +20,14 @@
 #ifndef SPI_Drv_h
 #define SPI_Drv_h
 
+#ifndef NULL
+  #ifdef __cplusplus
+    #define NULL 0
+  #else
+    #define NULL ((void*)0)
+  #endif
+#endif
+
 #include <inttypes.h>
 #include "utility/wifi_spi.h"
 
@@ -32,7 +40,7 @@
 
 #define WAIT_FOR_SLAVE_SELECT()	 \
 	SpiDrv::waitForSlaveReady(); \
-	SpiDrv::spiSlaveSelect();
+	SpiDrv::commSlaveSelect();
 
 
 
@@ -48,19 +56,19 @@ public:
 
     static void end();
     
-    static void spiDriverInit();
+    static void commDriverInit();
         
-    static void spiSlaveSelect();
+    static void commSlaveSelect();
     
-    static void spiSlaveDeselect();
+    static void commSlaveDeselect();
     
-    static char spiTransfer(volatile char data);
+    static char commTransfer(volatile char data);
 
     static void waitForSlaveReady();
 
-    //static int waitSpiChar(char waitChar, char* readChar);
+    //static int waitCommChar(char waitChar, char* readChar);
 
-    static int waitSpiChar(unsigned char waitChar);
+    static int waitCommChar(unsigned char waitChar);
     
     static int readAndCheckChar(char checkChar, char* readChar);
 
@@ -96,7 +104,5 @@ public:
     
     static void sendCmd(uint8_t cmd, uint8_t numParam);
 };                                                                 
-
-extern SpiDrv spiDrv;
 
 #endif
