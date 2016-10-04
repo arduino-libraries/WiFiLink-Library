@@ -17,11 +17,12 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 //*********************************************/
-// 
+//
 //  File:   serial.cpp
-// 
+//
 //  Author: bing@arduino.org (arduino srl)
-// 
+//  edit: andrea@arduino.org (arduino srl)
+//
 //********************************************/
 
 #if defined(ARDUINO_UNO_WIFI)
@@ -29,33 +30,35 @@
 #endif
 
 #include "serial.h"
-#include "Arduino.h"
-  
+
+unsigned long _startMillis;
+unsigned long _timeout = 3000; //3 Second Serial Timeout
+
 void WfSerial::begin()
 {
 
-#if defined(ARDUINO_UNO_WIFI) 
+#if defined(ARDUINO_UNO_WIFI)
   ESPSerial.begin(9600);
-#elif defined(ARDUINO_PRIMO)
+#elif defined(ARDUINO_PRIMO) || defined(__AVR_ATmega32U4__)  //to test
   Serial1.begin(9600);
 #else
   Serial.begin(9600);
 #endif
 
 }
-    
-unsigned char WfSerial::read()
-{
-  unsigned char c;
 
-#if defined(ARDUINO_UNO_WIFI) 
+int WfSerial::read()
+{
+  int c;
+
+#if defined(ARDUINO_UNO_WIFI)
   c = ESPSerial.read();
-#elif defined(ARDUINO_PRIMO)
+#elif defined(ARDUINO_PRIMO) || defined(__AVR_ATmega32U4__)  //added to test with arduino Leonardo
   c = Serial1.read();
 #else
   c = Serial.read();
 #endif
-  
+
   return c;
 
 }
@@ -63,9 +66,9 @@ unsigned char WfSerial::read()
 void WfSerial::write(unsigned char c)
 {
 
-#if defined(ARDUINO_UNO_WIFI) 
+#if defined(ARDUINO_UNO_WIFI)
   ESPSerial.write(c);
-#elif defined(ARDUINO_PRIMO)
+#elif defined(ARDUINO_PRIMO) || defined(__AVR_ATmega32U4__)
   Serial1.write(c);
 #else
   Serial.write(c);
@@ -78,15 +81,41 @@ int WfSerial::available()
 
   int num;
 
-#if defined(ARDUINO_UNO_WIFI) 
+#if defined(ARDUINO_UNO_WIFI)
   num = ESPSerial.available();
-#elif defined(ARDUINO_PRIMO)
+#elif defined(ARDUINO_PRIMO) || defined(__AVR_ATmega32U4__)
   num = Serial1.available();
 #else
   num = Serial.available();
 #endif
 
   return num;
+
+}
+
+int WfSerial::timedRead()
+{
+  int c;
+  _startMillis = millis();
+  do {
+    //c = Serial1.read();//
+    c = read();
+    if (c >= 0) return c;
+  } while(millis() - _startMillis < _timeout);
+  return -1;     // -1 indicates timeout
+}
+
+String WfSerial::readStringUntil(char terminator){
+
+	String ret;
+	int c = timedRead();
+
+	while (c >= 0 && (char)c != terminator)
+	{
+		ret += (char)c;
+		c = timedRead();
+	}
+	return ret;
 
 }
 

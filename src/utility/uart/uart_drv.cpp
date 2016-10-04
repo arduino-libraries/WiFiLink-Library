@@ -19,7 +19,7 @@
 
 #include "Arduino.h"
 #include "uart_drv.h"
-#include "serial.h"                   
+#include "serial.h"
 #include "pins_arduino.h"
 //#define _DEBUG_
 extern "C" {
@@ -30,7 +30,6 @@ extern "C" {
 void UartDrv::begin()
 {
 	  wfSerial.begin();
-
 #ifdef _DEBUG_
 	  INIT_TRIGGER()
 #endif
@@ -78,11 +77,11 @@ int UartDrv::waitCommChar(unsigned char waitChar)
     return  (_readChar == waitChar);
 }
 
-int UartDrv::readAndCheckChar(char checkChar, char* readChar)
+int UartDrv::readAndCheckChar(char checkChar, char readChar)
 {
-    getParam((uint8_t*)readChar);
+    //getParam((uint8_t*)readChar);
 
-    return  (*readChar == checkChar);
+    return  (readChar == checkChar);
 }
 
 char UartDrv::readChar()
@@ -92,10 +91,10 @@ char UartDrv::readChar()
 	return readChar;
 }
 
-#define UART_WAIT_START_CMD(x) waitCommChar(START_CMD)
+//#define UART_WAIT_START_CMD(x) waitCommChar(START_CMD)
 
 #define UART_IF_CHECK_START_CMD(x)                      \
-    if (!UART_WAIT_START_CMD(_data))                 \
+    if ((unsigned char)x != START_CMD)                 \
     {                                           \
         TOGGLE_TRIGGER()                        \
         WARN("Error waiting START_CMD");        \
@@ -103,7 +102,7 @@ char UartDrv::readChar()
     }else                                       \
 
 #define UART_CHECK_DATA(check, x)                   \
-        if (!readAndCheckChar(check, &x))   \
+        if (!readAndCheckChar(check, x))   \
         {                                               \
         	TOGGLE_TRIGGER()                        \
             WARN("Reply error");                        \
@@ -139,26 +138,24 @@ void UartDrv::getParam(uint8_t* param)
 int UartDrv::waitResponseCmd(uint8_t cmd, uint8_t numParam, uint8_t* param, uint8_t* param_len)
 {
     char _data = 0;
-    int ii = 0;
+    int idx = 0;
+		String raw_pckt = wfSerial.readStringUntil(0xEE);
 
-    UART_IF_CHECK_START_CMD(_data)
-    {
-        UART_CHECK_DATA(cmd | REPLY_FLAG, _data){};
+	 	UART_IF_CHECK_START_CMD(raw_pckt[idx]){
 
-        UART_CHECK_DATA(numParam, _data);
-        {
-            readParamLen8(param_len);
-            for (ii=0; ii<(*param_len); ++ii)
-            {
-                // Get Params data
-                //param[ii] = spiTransfer(DUMMY_DATA);
-                getParam(&param[ii]);
-            } 
-        }         
+		 		UART_CHECK_DATA(cmd | REPLY_FLAG, raw_pckt[++idx]){};
 
-        readAndCheckChar(END_CMD, &_data);
-    }     
-    
+	  		UART_CHECK_DATA(numParam, raw_pckt[++idx]);
+		 		{
+					*param_len=raw_pckt[++idx];
+					for (int ii=0; ii<(*param_len); ++ii)
+					{
+
+							param[ii] = raw_pckt[++idx];
+
+					}
+		 		}
+		}
     return 1;
 }
 /*
@@ -178,104 +175,109 @@ int UartDrv::waitResponse(uint8_t cmd, uint8_t numParam, uint8_t* param, uint16_
             {
                 // Get Params data
                 param[ii] = spiTransfer(DUMMY_DATA);
-            } 
-        }         
+            }
+        }
 
         readAndCheckChar(END_CMD, &_data);
-    }     
-    
+    }
+
     return 1;
 }
 */
 
+
+//TODO
 int UartDrv::waitResponseData16(uint8_t cmd, uint8_t* param, uint16_t* param_len)
 {
     char _data = 0;
     uint16_t ii = 0;
 
-    UART_IF_CHECK_START_CMD(_data)
-    {
-        UART_CHECK_DATA(cmd | REPLY_FLAG, _data){};
+    // UART_IF_CHECK_START_CMD(_data)
+    // {
+    //     UART_CHECK_DATA(cmd | REPLY_FLAG, _data){};
+		//
+    //     uint8_t numParam = readChar();
+    //     if (numParam != 0)
+    //     {
+    //         readParamLen16(param_len);
+    //         for (ii=0; ii<(*param_len); ++ii)
+    //         {
+    //             // Get Params data
+    //             param[ii] = readChar();
+    //         }
+    //     }
+		//
+    //     readAndCheckChar(END_CMD, &_data);
+    // }
 
-        uint8_t numParam = readChar();
-        if (numParam != 0)
-        {        
-            readParamLen16(param_len);
-            for (ii=0; ii<(*param_len); ++ii)
-            {
-                // Get Params data
-                param[ii] = readChar();
-            } 
-        }         
-
-        readAndCheckChar(END_CMD, &_data);
-    }     
-    
     return 1;
 }
+
+//TODO
 
 int UartDrv::waitResponseData8(uint8_t cmd, uint8_t* param, uint8_t* param_len)
 {
     char _data = 0;
     int ii = 0;
 
-    UART_IF_CHECK_START_CMD(_data)
-    {
-        UART_CHECK_DATA(cmd | REPLY_FLAG, _data){};
+    // UART_IF_CHECK_START_CMD(_data)
+    // {
+    //     UART_CHECK_DATA(cmd | REPLY_FLAG, _data){};
+		//
+    //     uint8_t numParam = readChar();
+    //     if (numParam != 0)
+    //     {
+    //         readParamLen8(param_len);
+    //         for (ii=0; ii<(*param_len); ++ii)
+    //         {
+    //             // Get Params data
+    //             param[ii] = readChar();
+    //         }
+    //     }
+		//
+    //     readAndCheckChar(END_CMD, &_data);
+    // }
 
-        uint8_t numParam = readChar();
-        if (numParam != 0)
-        {        
-            readParamLen8(param_len);
-            for (ii=0; ii<(*param_len); ++ii)
-            {
-                // Get Params data
-                param[ii] = readChar();
-            } 
-        }         
-
-        readAndCheckChar(END_CMD, &_data);
-    }     
-    
     return 1;
 }
 
+//TODO
 int UartDrv::waitResponseParams(uint8_t cmd, uint8_t numParam, tParam* params)
 {
     char _data = 0;
     int i =0, ii = 0;
 
 
-    UART_IF_CHECK_START_CMD(_data)
-    {
-        UART_CHECK_DATA(cmd | REPLY_FLAG, _data){};
-
-        uint8_t _numParam = readChar();
-        if (_numParam != 0)
-        {        
-            for (i=0; i<_numParam; ++i)
-            {
-                params[i].paramLen = readParamLen8();
-                for (ii=0; ii<params[i].paramLen; ++ii)
-                {
-                    // Get Params data
-                    params[i].param[ii] = readChar();
-                } 
-            }
-        } else
-        {
-            WARN("Error numParam == 0");
-            return 0;
-        }
-
-        if (numParam != _numParam)
-        {
-            WARN("Mismatch numParam");
-            return 0;
-        }
-
-        readAndCheckChar(END_CMD, &_data);
-    }         
+    // UART_IF_CHECK_START_CMD(_data)
+    // {
+    //     UART_CHECK_DATA(cmd | REPLY_FLAG, _data){};
+		//
+    //     uint8_t _numParam = readChar();
+    //     if (_numParam != 0)
+    //     {
+    //         for (i=0; i<_numParam; ++i)
+    //         {
+    //             params[i].paramLen = readParamLen8();
+    //             for (ii=0; ii<params[i].paramLen; ++ii)
+    //             {
+    //                 // Get Params data
+    //                 params[i].param[ii] = readChar();
+    //             }
+    //         }
+    //     } else
+    //     {
+    //         WARN("Error numParam == 0");
+    //         return 0;
+    //     }
+		//
+    //     if (numParam != _numParam)
+    //     {
+    //         WARN("Mismatch numParam");
+    //         return 0;
+    //     }
+		//
+    //     readAndCheckChar(END_CMD, &_data);
+    // }
     return 1;
 }
 
@@ -306,7 +308,7 @@ int UartDrv::waitResponse(uint8_t cmd, tParam* params, uint8_t* numParamRead, ui
                 {
                     // Get Params data
                     params[i].param[ii] = spiTransfer(DUMMY_DATA);
-                } 
+                }
             }
         } else
         {
@@ -315,7 +317,7 @@ int UartDrv::waitResponse(uint8_t cmd, tParam* params, uint8_t* numParamRead, ui
             return 0;
         }
         readAndCheckChar(END_CMD, &_data);
-    }         
+    }
     return 1;
 }
 */
@@ -323,18 +325,20 @@ int UartDrv::waitResponse(uint8_t cmd, tParam* params, uint8_t* numParamRead, ui
 int UartDrv::waitResponse(uint8_t cmd, uint8_t* numParamRead, uint8_t** params, uint8_t maxNumParams)
 {
     char _data = 0;
-    int i =0, ii = 0;
+    int i =0, ii = 0,idx=0;
 
     char    *index[WL_SSID_MAX_LENGTH];
 
     for (i = 0 ; i < WL_NETWORKS_LIST_MAXNUM ; i++)
             index[i] = (char *)params + WL_SSID_MAX_LENGTH*i;
 
-    UART_IF_CHECK_START_CMD(_data)
-    {
-        UART_CHECK_DATA(cmd | REPLY_FLAG, _data){};
+		String raw_pckt = wfSerial.readStringUntil(0xEE); //read data from Serial
 
-        uint8_t numParam = readChar();
+    UART_IF_CHECK_START_CMD(raw_pckt[idx])
+    {
+        UART_CHECK_DATA(cmd | REPLY_FLAG, raw_pckt[++idx]){};
+
+        uint8_t numParam = raw_pckt[++idx];
 
         if (numParam > maxNumParams)
         {
@@ -345,12 +349,12 @@ int UartDrv::waitResponse(uint8_t cmd, uint8_t* numParamRead, uint8_t** params, 
         {
             for (i=0; i<numParam; ++i)
             {
-            	uint8_t paramLen = readParamLen8();
+            	uint8_t paramLen = raw_pckt[++idx];
                 for (ii=0; ii<paramLen; ++ii)
                 {
                 	//ssid[ii] = spiTransfer(DUMMY_DATA);
                     // Get Params data
-                    index[i][ii] = (uint8_t)readChar();
+                    index[i][ii] = raw_pckt[++idx];
 
                 }
                 index[i][ii]=0;
@@ -358,10 +362,10 @@ int UartDrv::waitResponse(uint8_t cmd, uint8_t* numParamRead, uint8_t** params, 
         } else
         {
             WARN("Error numParams == 0");
-            readAndCheckChar(END_CMD, &_data);
+            //readAndCheckChar(END_CMD, &_data);
             return 0;
         }
-        readAndCheckChar(END_CMD, &_data);
+        //readAndCheckChar(END_CMD, &_data);
     }
     return 1;
 }

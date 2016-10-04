@@ -17,24 +17,30 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 //*********************************************/
-// 
+//
 //  File:   serial.h
-// 
+//
 //  Author: bing@arduino.org (arduino srl)
-// 
+//  edit: andrea@arduino.org (arduino srl)
+//
 //********************************************/
 
 
 #ifndef SERIAL_H
 #define SERIAL_H
 
+#include "Arduino.h"
+
 class WfSerial {
+private:
+    int timedRead();
 
 public:
     void begin();
-    unsigned char read();
+    int read();
     void write(unsigned char c);
     int available();
+    String readStringUntil(char terminator);
 };
 
 extern WfSerial wfSerial;

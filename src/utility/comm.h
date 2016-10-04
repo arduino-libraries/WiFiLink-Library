@@ -17,17 +17,17 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 //*********************************************/
-// 
+//
 //  File:   comm.h
-// 
+//
 //  Author: bing@arduino.org (arduino srl)
-// 
+//
 //********************************************/
 
 #ifndef COMM_H
 #define COMM_H
 
-#if defined(ARDUINO_UNO_WIFI) || defined(ARDUINO_PRIMO)
+#if defined(ARDUINO_UNO_WIFI) || defined(ARDUINO_PRIMO) || defined(__AVR_ATmega32U4__)
     #include "utility/uart/uart_drv.h"
 	class CommDrv : public UartDrv {};
 #else
@@ -38,5 +38,3 @@
 extern CommDrv commDrv;
 
 #endif
-
-

@@ -21,11 +21,13 @@
 #define UART_Drv_h
 
 #include <inttypes.h>
+#include <Arduino.h>
 #include "utility/wifi_spi.h"
 
 
 #define NO_LAST_PARAM   0
 #define LAST_PARAM      1
+#define DUMMY_DATA			0xFF
 
 #define WAIT_FOR_SLAVE_SELECT()	 \
 	UartDrv::waitForSlaveReady(); \
@@ -39,18 +41,19 @@ private:
 	//static bool waitSlaveReady();
 	static void waitForSlaveSign();
 	static void getParam(uint8_t* param);
-public:
 
+
+public:
     static void begin();
 
     static void end();
-    
+
     static void commDriverInit();
-        
+
     static void commSlaveSelect();
-    
+
     static void commSlaveDeselect();
-    
+
     static char commTransfer(volatile char data);
 
     static void waitForSlaveReady();
@@ -58,21 +61,21 @@ public:
     //static int waitSpiChar(char waitChar, char* readChar);
 
     static int waitCommChar(unsigned char waitChar);
-    
-    static int readAndCheckChar(char checkChar, char* readChar);
+
+    static int readAndCheckChar(char checkChar, char readChar);
 
     static char readChar();
 
     static int waitResponseParams(uint8_t cmd, uint8_t numParam, tParam* params);
-    
+
     static int waitResponseCmd(uint8_t cmd, uint8_t numParam, uint8_t* param, uint8_t* param_len);
 
     static int waitResponseData8(uint8_t cmd, uint8_t* param, uint8_t* param_len);
-     
+
     static int waitResponseData16(uint8_t cmd, uint8_t* param, uint16_t* param_len);
  /*
     static int waitResponse(uint8_t cmd, tParam* params, uint8_t* numParamRead, uint8_t maxNumParams);
-    
+
     static int waitResponse(uint8_t cmd, uint8_t numParam, uint8_t* param, uint16_t* param_len);
 */
     static int waitResponse(uint8_t cmd, uint8_t* numParamRead, uint8_t** params, uint8_t maxNumParams);
@@ -90,8 +93,8 @@ public:
     static void sendBuffer(uint8_t* param, uint16_t param_len, uint8_t lastParam = NO_LAST_PARAM);
 
     static void sendParam(uint16_t param, uint8_t lastParam = NO_LAST_PARAM);
-    
+
     static void sendCmd(uint8_t cmd, uint8_t numParam);
-};                                                                 
+};
 
 #endif
