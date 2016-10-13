@@ -40,7 +40,7 @@ void WfSerial::begin()
 #if defined(ARDUINO_UNO_WIFI)
   ESPSerial.begin(9600);
 #elif defined(ARDUINO_PRIMO) || defined(__AVR_ATmega32U4__)  //to test
-  Serial1.begin(9600);
+  Serial1.begin(115200);
 #else
   Serial.begin(9600);
 #endif
