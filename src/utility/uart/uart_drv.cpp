@@ -218,25 +218,27 @@ int UartDrv::waitResponseData16(uint8_t cmd, uint8_t* param, uint16_t* param_len
 int UartDrv::waitResponseData8(uint8_t cmd, uint8_t* param, uint8_t* param_len)
 {
     char _data = 0;
-    int ii = 0;
+		int ii = 0, idx=0;
 
-    // UART_IF_CHECK_START_CMD(_data)
-    // {
-    //     UART_CHECK_DATA(cmd | REPLY_FLAG, _data){};
-		//
-    //     uint8_t numParam = readChar();
-    //     if (numParam != 0)
-    //     {
-    //         readParamLen8(param_len);
-    //         for (ii=0; ii<(*param_len); ++ii)
-    //         {
-    //             // Get Params data
-    //             param[ii] = readChar();
-    //         }
-    //     }
-		//
-    //     readAndCheckChar(END_CMD, &_data);
-    // }
+		String raw_pckt = wfSerial.readStringUntil(0xEE);
+		UART_IF_CHECK_START_CMD(raw_pckt[idx])
+    {
+        UART_CHECK_DATA(cmd | REPLY_FLAG, raw_pckt[++idx]){};
+        uint8_t numParam = raw_pckt[++idx];
+        if (numParam != 0)
+        {
+
+						*param_len = raw_pckt[++idx];
+            for (ii=0; ii<(*param_len); ++ii)
+            {
+                // Get Params data
+                param[ii] = raw_pckt[++idx];
+
+            }
+
+        }
+
+    }
 
     return 1;
 }
@@ -245,39 +247,39 @@ int UartDrv::waitResponseData8(uint8_t cmd, uint8_t* param, uint8_t* param_len)
 int UartDrv::waitResponseParams(uint8_t cmd, uint8_t numParam, tParam* params)
 {
     char _data = 0;
-    int i =0, ii = 0;
+    int i =0, ii = 0, idx=0;
 
+		String raw_pckt = wfSerial.readStringUntil(0xEE);
 
-    // UART_IF_CHECK_START_CMD(_data)
-    // {
-    //     UART_CHECK_DATA(cmd | REPLY_FLAG, _data){};
-		//
-    //     uint8_t _numParam = readChar();
-    //     if (_numParam != 0)
-    //     {
-    //         for (i=0; i<_numParam; ++i)
-    //         {
-    //             params[i].paramLen = readParamLen8();
-    //             for (ii=0; ii<params[i].paramLen; ++ii)
-    //             {
-    //                 // Get Params data
-    //                 params[i].param[ii] = readChar();
-    //             }
-    //         }
-    //     } else
-    //     {
-    //         WARN("Error numParam == 0");
-    //         return 0;
-    //     }
-		//
-    //     if (numParam != _numParam)
-    //     {
-    //         WARN("Mismatch numParam");
-    //         return 0;
-    //     }
-		//
-    //     readAndCheckChar(END_CMD, &_data);
-    // }
+    UART_IF_CHECK_START_CMD(raw_pckt[idx])
+    {
+        UART_CHECK_DATA(cmd | REPLY_FLAG, raw_pckt[++idx]){};
+        uint8_t _numParam = raw_pckt[++idx];
+        if (_numParam != 0)
+        {
+            for (i=0; i<_numParam; ++i)
+            {
+                params[i].paramLen = raw_pckt[++idx];
+                for (ii=0; ii<params[i].paramLen; ++ii)
+                {
+                    // Get Params data
+                    params[i].param[ii] = raw_pckt[++idx];
+                }
+            }
+        } else
+        {
+            WARN("Error numParam == 0");
+            return 0;
+        }
+
+        if (numParam != _numParam)
+        {
+            WARN("Mismatch numParam");
+            return 0;
+        }
+
+        //readAndCheckChar(END_CMD, &_data);
+    }
     return 1;
 }
 
