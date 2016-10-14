@@ -62,7 +62,7 @@ public:
 
     static int waitCommChar(unsigned char waitChar);
 
-    static int readAndCheckChar(char checkChar, char readChar);
+    static int readAndCheckChar(char checkChar, char* readChar);
 
     static char readChar();
 

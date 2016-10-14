@@ -156,7 +156,7 @@ int8_t WiFiDrv::wifiSetKey(char* ssid, uint8_t ssid_len, uint8_t key_idx, const 
     commDrv.sendParam((uint8_t*)ssid, ssid_len, NO_LAST_PARAM);
     commDrv.sendParam(&key_idx, KEY_IDX_LEN, NO_LAST_PARAM);
     commDrv.sendParam((uint8_t*)key, len, LAST_PARAM);
-    
+
     //Wait the reply elaboration
     commDrv.waitForSlaveReady();
 
@@ -220,7 +220,7 @@ void WiFiDrv::setDNS(uint8_t validParams, uint32_t dns_server1, uint32_t dns_ser
 }
 
 
-                        
+
 int8_t WiFiDrv::disconnect()
 {
 	WAIT_FOR_SLAVE_SELECT();
@@ -309,7 +309,7 @@ char* WiFiDrv::getCurrentSSID()
 
     // Send Command
     commDrv.sendCmd(GET_CURR_SSID_CMD, PARAM_NUMS_1);
-
+    
     uint8_t _dummy = DUMMY_DATA;
     commDrv.sendParam(&_dummy, 1, LAST_PARAM);
 
@@ -317,32 +317,30 @@ char* WiFiDrv::getCurrentSSID()
     commDrv.waitForSlaveReady();
 
     // Wait for reply
-    uint8_t _dataLen = 0;
-    commDrv.waitResponseCmd(GET_CURR_SSID_CMD, PARAM_NUMS_1, (uint8_t*)_ssid, &_dataLen);
+     uint8_t _dataLen = 0;
+     commDrv.waitResponseCmd(GET_CURR_SSID_CMD, PARAM_NUMS_1, (uint8_t*)_ssid, &_dataLen);
 
-    commDrv.commSlaveDeselect();
+     commDrv.commSlaveDeselect();
 
     return _ssid;
 }
 
 uint8_t* WiFiDrv::getCurrentBSSID()
 {
-	WAIT_FOR_SLAVE_SELECT();
+	//WAIT_FOR_SLAVE_SELECT();
 
     // Send Command
     commDrv.sendCmd(GET_CURR_BSSID_CMD, PARAM_NUMS_1);
 
     uint8_t _dummy = DUMMY_DATA;
     commDrv.sendParam(&_dummy, 1, LAST_PARAM);
-
     //Wait the reply elaboration
     commDrv.waitForSlaveReady();
 
     // Wait for reply
     uint8_t _dataLen = 0;
     commDrv.waitResponseCmd(GET_CURR_BSSID_CMD, PARAM_NUMS_1, _bssid, &_dataLen);
-
-    commDrv.commSlaveDeselect();
+  //  commDrv.commSlaveDeselect();
 
     return _bssid;
 }
@@ -401,7 +399,7 @@ int8_t WiFiDrv::startScanNetworks()
     commDrv.sendCmd(START_SCAN_NETWORKS, PARAM_NUMS_0);
 
     //Wait the reply elaboration
-    commDrv.waitForSlaveReady();
+    //commDrv.waitForSlaveReady();
 
     // Wait for reply
     uint8_t _data = 0;
@@ -410,11 +408,11 @@ int8_t WiFiDrv::startScanNetworks()
     if (!commDrv.waitResponseCmd(START_SCAN_NETWORKS, PARAM_NUMS_1, &_data, &_dataLen))
      {
          WARN("error waitResponse");
+         Serial.println("error waitResponse");
          _data = WL_FAILURE;
      }
 
     commDrv.commSlaveDeselect();
-
     return (_data == WL_FAILURE)? _data : WL_SUCCESS;
 }
 
@@ -428,7 +426,7 @@ uint8_t WiFiDrv::getScanNetworks()
 
     //Wait the reply elaboration
     commDrv.waitForSlaveReady();
-
+    //delay(200);
     // Wait for reply
     uint8_t ssidListNum = 0;
     commDrv.waitResponse(SCAN_NETWORKS, &ssidListNum, (uint8_t**)_networkSsid, WL_NETWORKS_LIST_MAXNUM);

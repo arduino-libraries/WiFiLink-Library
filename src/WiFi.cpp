@@ -161,7 +161,7 @@ uint8_t* WiFiClass::macAddress(uint8_t* mac)
 	memcpy(mac, _mac, WL_MAC_ADDR_LENGTH);
     return mac;
 }
-   
+
 IPAddress WiFiClass::localIP()
 {
 	IPAddress ret;
@@ -210,13 +210,12 @@ int8_t WiFiClass::scanNetworks()
 {
 	uint8_t attempts = 10;
 	uint8_t numOfNetworks = 0;
-
+  int a=0;
 	if (WiFiDrv::startScanNetworks() == WL_FAILURE)
 		return WL_FAILURE;
- 	do
- 	{
- 		delay(2000);
- 		numOfNetworks = WiFiDrv::getScanNetworks();
+  do{
+  		delay(2000);
+ 		  numOfNetworks = WiFiDrv::getScanNetworks();
  	}
 	while (( numOfNetworks == 0)&&(--attempts>0));
 	return numOfNetworks;

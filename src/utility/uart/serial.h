@@ -30,7 +30,6 @@
 #define SERIAL_H
 
 #include "Arduino.h"
-
 class WfSerial {
 private:
     int timedRead();

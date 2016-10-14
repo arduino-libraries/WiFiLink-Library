@@ -56,7 +56,8 @@ WiFiClient WiFiServer::available(byte* status)
         	WiFiClient client(sock);
             uint8_t _status = client.status();
             uint8_t _ser_status = this->status();
-
+            //Serial.print(" Client ");Serial.println(_status);
+            //Serial.print(" Server ");Serial.println(_ser_status);
             if (status != NULL)
             	*status = _status;
 
@@ -66,11 +67,10 @@ WiFiClient WiFiServer::available(byte* status)
             	ServerDrv::startServer(_port, sock);
             	cycle_server_down = 0;
             }
-
             if (_status == ESTABLISHED)
-            {                
-                return client;  //TODO 
-            }
+            {//Serial.print(" Client Connesso: "); Serial.println(client);
+                return client;  //TODO
+            }//else Serial.print(" Client NON Connesso: ");
         }
     }
 
@@ -99,7 +99,7 @@ size_t WiFiServer::write(const uint8_t *buffer, size_t size)
 
             if (WiFiClass::_server_port[sock] == _port &&
                 client.status() == ESTABLISHED)
-            {                
+            {
                 n+=client.write(buffer, size);
             }
         }
