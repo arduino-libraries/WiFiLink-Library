@@ -22,8 +22,8 @@
 #include <WiFi.h>
 
 
-char ssid[] = "DHLabs";      // your network SSID (name)
-char pass[] = "dhlabsrfid01";   // your network password
+char ssid[] = "yourNetwork";      // your network SSID (name)
+char pass[] = "secretPassword";   // your network password
 int keyIndex = 0;                 // your network key Index number (needed only for WEP)
 
 int status = WL_IDLE_STATUS;
@@ -31,47 +31,43 @@ int status = WL_IDLE_STATUS;
 WiFiServer server(80);
 
 void setup() {
-  //Initialize Serial and wait for port to open:
+  //Initialize serial and wait for port to open:
   Serial.begin(9600);
   while (!Serial) {
-    ; // wait for Serial port to connect. Needed for Leonardo only
+    ; // wait for serial port to connect. Needed for Leonardo only
   }
 
   // check for the presence of the shield:
-//  if (WiFi.status() == WL_NO_SHIELD) {
-//    Serial.println("WiFi shield not present");
-//    // don't continue:
-//    while (true);
-//  }
+  if (WiFi.status() == WL_NO_SHIELD) {
+    Serial.println("WiFi shield not present");
+    // don't continue:
+    while (true);
+  }
 
-//  String fv = WiFi.firmwareVersion();
-//  if ( fv != "1.1.0" )
-//    Serial.println("Please upgrade the firmware");
+  String fv = WiFi.firmwareVersion();
+  if ( fv != "1.1.0" )
+    Serial.println("Please upgrade the firmware");
 
   // attempt to connect to Wifi network:
-  while ( WiFi.status() != WL_CONNECTED) {
+  while ( status != WL_CONNECTED) {
     Serial.print("Attempting to connect to SSID: ");
     Serial.println(ssid);
     // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
-    status = WiFi.status();
+    status = WiFi.begin(ssid, pass);
 
     // wait 10 seconds for connection:
     delay(10000);
   }
-  
   server.begin();
-  delay(3000);
   // you're connected now, so print out the status:
   printWifiStatus();
-
 }
 
 
 void loop() {
   // listen for incoming clients
   WiFiClient client = server.available();
-  //delay(10000);
- if (client) {
+  if (client) {
     Serial.println("new client");
     // an http request ends with a blank line
     boolean currentLineIsBlank = true;
@@ -84,13 +80,13 @@ void loop() {
         // so you can send a reply
         if (c == '\n' && currentLineIsBlank) {
           // send a standard http response header
-          client.print("HTTP/1.1 200 OK");
-          client.print("Content-Type: text/html");
-          client.print("Connection: close");  // the connection will be closed after completion of the response
-          client.print("Refresh: 5");  // refresh the page automatically every 5 sec
+          client.println("HTTP/1.1 200 OK");
+          client.println("Content-Type: text/html");
+          client.println("Connection: close");  // the connection will be closed after completion of the response
+          client.println("Refresh: 5");  // refresh the page automatically every 5 sec
           client.println();
-          client.print("<!DOCTYPE HTML>");
-          client.print("<html>");
+          client.println("<!DOCTYPE HTML>");
+          client.println("<html>");
           // output the value of each analog input pin
           for (int analogChannel = 0; analogChannel < 6; analogChannel++) {
             int sensorReading = analogRead(analogChannel);
@@ -100,7 +96,7 @@ void loop() {
             client.print(sensorReading);
             client.println("<br />");
           }
-          client.print("</html>\0");
+          client.println("</html>");
           break;
         }
         if (c == '\n') {
@@ -119,7 +115,6 @@ void loop() {
     // close the connection:
     client.stop();
     Serial.println("client disonnected");
-    
   }
 }
 
