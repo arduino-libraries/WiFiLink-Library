@@ -21,13 +21,14 @@
 //  File:   comm.h
 //
 //  Author: bing@arduino.org (arduino srl)
+//  edit:   andrea@arduino.org (arduino srl)
 //
 //********************************************/
 
 #ifndef COMM_H
 #define COMM_H
 
-#if defined(ARDUINO_UNO_WIFI) || defined(ARDUINO_PRIMO) || defined(__AVR_ATmega32U4__)
+#if defined(__AVR_ATmega32U4__) //|| defined(__AVR_ATmega328P__) 
     #include "utility/uart/uart_drv.h"
 	class CommDrv : public UartDrv {};
 #else
