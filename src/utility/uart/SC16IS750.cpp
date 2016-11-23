@@ -1,7 +1,7 @@
-/* 
+/*
 Description:
 This is a example code for Sandbox Electronics' I2C/SPI to UART bridge module.
-You can get one of those products on 
+You can get one of those products on
 http://sandboxelectronics.com
 
 Version:
@@ -16,15 +16,17 @@ Tiequan Shao          info@sandboxelectronics.com
 Lisence:
 CC BY-NC-SA 3.0
 
-Please keep the above information when you use this code in your project. 
+Please keep the above information when you use this code in your project.
 */
 
-#if defined(ARDUINO_UNO_WIFI)
+#if defined(__AVR_ATmega328P__)
 
 #include "SC16IS750.h"
 #include <Wire.h>
 
 #define WIRE Wire
+#define BAUDRATE 9600
+bool begin_done = false;
 
 WifiData::WifiData()
 {
@@ -37,7 +39,7 @@ void WifiData::begin(uint32_t baud)
 
     if ( protocol == SC16IS750_PROTOCOL_I2C) {
         WIRE.begin();
-    } 
+    }
     ResetDevice();
     FIFOEnable(1);
     SetBaudrate(baud);
@@ -61,6 +63,10 @@ int WifiData::read(void)
 
 size_t WifiData::write(uint8_t val)
 {
+    if(!begin_done){      //enable wire
+        begin(BAUDRATE);
+        begin_done = true;
+    }
     WriteByte(val);
 }
 
@@ -90,7 +96,7 @@ uint8_t WifiData::ReadRegister(uint8_t reg_addr)
         WIRE.endTransmission(0);
         WIRE.requestFrom(device_address_sspin,(uint8_t)1);
         result = WIRE.read();
-    } 
+    }
 
     return result;
 
@@ -103,7 +109,7 @@ void WifiData::WriteRegister(uint8_t reg_addr, uint8_t val)
         WIRE.write((reg_addr<<3));
         WIRE.write(val);
         WIRE.endTransmission(1);
-    } 
+    }
 
 
     return ;
