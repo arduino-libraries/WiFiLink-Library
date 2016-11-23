@@ -47,7 +47,7 @@ uint8_t WiFiDrv::_localIp[] = {0};
 uint8_t WiFiDrv::_subnetMask[] = {0};
 uint8_t WiFiDrv::_gatewayIp[] = {0};
 // Firmware version
-char    WiFiDrv::fwVersion[] = {0};
+char WiFiDrv::fwVersion[] = {0};
 
 
 // Private Methods
@@ -110,7 +110,7 @@ int8_t WiFiDrv::wifiSetNetwork(char* ssid, uint8_t ssid_len)
 
     //Wait the reply elaboration
     commDrv.waitForSlaveReady();
-
+    delay(500);
     // Wait for reply
     uint8_t _data = 0;
     uint8_t _dataLen = 0;
@@ -134,7 +134,7 @@ int8_t WiFiDrv::wifiSetPassphrase(char* ssid, uint8_t ssid_len, const char *pass
 
     //Wait the reply elaboration
     commDrv.waitForSlaveReady();
-
+    delay(500);
     // Wait for reply
     uint8_t _data = 0;
     uint8_t _dataLen = 0;
@@ -159,7 +159,7 @@ int8_t WiFiDrv::wifiSetKey(char* ssid, uint8_t ssid_len, uint8_t key_idx, const 
 
     //Wait the reply elaboration
     commDrv.waitForSlaveReady();
-
+    delay(500);
     // Wait for reply
     uint8_t _data = 0;
     uint8_t _dataLen = 0;
@@ -305,11 +305,11 @@ void WiFiDrv::getIpAddress(IPAddress& ip)
 
 char* WiFiDrv::getCurrentSSID()
 {
-	WAIT_FOR_SLAVE_SELECT();
+    WAIT_FOR_SLAVE_SELECT();
 
     // Send Command
     commDrv.sendCmd(GET_CURR_SSID_CMD, PARAM_NUMS_1);
-    
+
     uint8_t _dummy = DUMMY_DATA;
     commDrv.sendParam(&_dummy, 1, LAST_PARAM);
 
@@ -327,20 +327,21 @@ char* WiFiDrv::getCurrentSSID()
 
 uint8_t* WiFiDrv::getCurrentBSSID()
 {
-	//WAIT_FOR_SLAVE_SELECT();
+    WAIT_FOR_SLAVE_SELECT();
 
     // Send Command
     commDrv.sendCmd(GET_CURR_BSSID_CMD, PARAM_NUMS_1);
 
     uint8_t _dummy = DUMMY_DATA;
     commDrv.sendParam(&_dummy, 1, LAST_PARAM);
+
     //Wait the reply elaboration
     commDrv.waitForSlaveReady();
 
     // Wait for reply
     uint8_t _dataLen = 0;
     commDrv.waitResponseCmd(GET_CURR_BSSID_CMD, PARAM_NUMS_1, _bssid, &_dataLen);
-  //  commDrv.commSlaveDeselect();
+    commDrv.commSlaveDeselect();
 
     return _bssid;
 }
@@ -399,7 +400,7 @@ int8_t WiFiDrv::startScanNetworks()
     commDrv.sendCmd(START_SCAN_NETWORKS, PARAM_NUMS_0);
 
     //Wait the reply elaboration
-    //commDrv.waitForSlaveReady();
+    commDrv.waitForSlaveReady();
 
     // Wait for reply
     uint8_t _data = 0;
@@ -408,7 +409,6 @@ int8_t WiFiDrv::startScanNetworks()
     if (!commDrv.waitResponseCmd(START_SCAN_NETWORKS, PARAM_NUMS_1, &_data, &_dataLen))
      {
          WARN("error waitResponse");
-         Serial.println("error waitResponse");
          _data = WL_FAILURE;
      }
 
@@ -479,7 +479,6 @@ int32_t WiFiDrv::getRSSINetoworks(uint8_t networkItem)
 
     // Send Command
     commDrv.sendCmd(GET_IDX_RSSI_CMD, PARAM_NUMS_1);
-
     commDrv.sendParam(&networkItem, 1, LAST_PARAM);
 
     //Wait the reply elaboration
@@ -558,13 +557,11 @@ int WiFiDrv::getHostByName(const char* aHostname, IPAddress& aResult)
 
 char*  WiFiDrv::getFwVersion()
 {
-	WAIT_FOR_SLAVE_SELECT();
+	  WAIT_FOR_SLAVE_SELECT();
     // Send Command
     commDrv.sendCmd(GET_FW_VERSION_CMD, PARAM_NUMS_0);
-
     //Wait the reply elaboration
     commDrv.waitForSlaveReady();
-
     // Wait for reply
     uint8_t _dataLen = 0;
     if (!commDrv.waitResponseCmd(GET_FW_VERSION_CMD, PARAM_NUMS_1, (uint8_t*)fwVersion, &_dataLen))
