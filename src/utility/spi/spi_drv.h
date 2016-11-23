@@ -36,12 +36,15 @@
 #define NO_LAST_PARAM   0
 #define LAST_PARAM      1
 
-#define DUMMY_DATA  0xFF
+#define DUMMY_DATA  0x00
+
+// wait time for slave data (microseconds)
+#define SLAVEREADY_TIME 500
+#define SPI_SLAVE_BUFFER 32
 
 #define WAIT_FOR_SLAVE_SELECT()	 \
-	SpiDrv::waitForSlaveReady(); \
-	SpiDrv::commSlaveSelect();
-
+  	SpiDrv::commSlaveSelect(); \
+	//SpiDrv::waitForSlaveReady();
 
 
 class SpiDrv
@@ -80,6 +83,8 @@ public:
 
     static int waitResponseData8(uint8_t cmd, uint8_t* param, uint8_t* param_len);
 
+    static int waitResponseData8_debug(uint8_t cmd, uint8_t* param, uint8_t* param_len);
+
     static int waitResponseData16(uint8_t cmd, uint8_t* param, uint16_t* param_len);
  /*
     static int waitResponse(uint8_t cmd, tParam* params, uint8_t* numParamRead, uint8_t maxNumParams);
@@ -95,6 +100,16 @@ public:
     static void sendParamLen16(uint16_t param_len);
 
     static uint8_t readParamLen8(uint8_t* param_len = NULL);
+
+    static void endPacket();
+
+    static void checkTransferPacket();
+
+    static void checkReceiverPacket();
+
+    static void writeStatus(uint32_t status);
+
+    static int readStatus();
 
     static uint16_t readParamLen16(uint16_t* param_len = NULL);
 
