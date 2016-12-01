@@ -128,13 +128,14 @@ char SpiDrv::readChar()
 	return readChar;
 }
 
-#define WAIT_START_CMD(x) waitCommChar(0xE0)
+#define WAIT_START_CMD(x) waitCommChar(START_CMD)
 
 #define IF_CHECK_START_CMD(x)                      \
     if (!WAIT_START_CMD(_data))                 \
     {                                           \
         TOGGLE_TRIGGER()                        \
         WARN("Error waiting START_CMD");        \
+				endPacket();														\
         return 0;                               \
     }else                                       \
 
@@ -144,6 +145,7 @@ char SpiDrv::readChar()
         	TOGGLE_TRIGGER()                        \
             WARN("Reply error");                        \
             INFO2(check, (uint8_t)x);							\
+						endPacket();													\
             return 0;                                   \
         }else                                           \
 
@@ -253,6 +255,8 @@ int SpiDrv::waitResponseData16(uint8_t cmd, uint8_t* param, uint16_t* param_len)
 {
     char _data = 0;
     uint16_t ii = 0;
+		SPI.transfer(0x03);
+		SPI.transfer(0x00);
     IF_CHECK_START_CMD(_data)
     {
         CHECK_DATA(cmd | REPLY_FLAG, _data){};
@@ -260,15 +264,18 @@ int SpiDrv::waitResponseData16(uint8_t cmd, uint8_t* param, uint16_t* param_len)
         uint8_t numParam = readChar();
         if (numParam != 0)
         {
+
             readParamLen16(param_len);
             for (ii=0; ii<(*param_len); ++ii)
             {
                 // Get Params data
+								checkReceiverPacket();
                 param[ii] = commTransfer(DUMMY_DATA);
             }
         }
-
+				checkReceiverPacket();
         readAndCheckChar(END_CMD, &_data);
+				endPacket();
     }
 
     return 1;
@@ -358,10 +365,12 @@ int SpiDrv::waitResponseParams(uint8_t cmd, uint8_t numParam, tParam* params)
         {
             for (i=0; i<_numParam; ++i)
             {
+								checkReceiverPacket();
                 params[i].paramLen = readParamLen8();
                 for (ii=0; ii<params[i].paramLen; ++ii)
                 {
                     // Get Params data
+										checkReceiverPacket();
                     params[i].param[ii] = commTransfer(DUMMY_DATA);
                 }
             }
@@ -376,8 +385,9 @@ int SpiDrv::waitResponseParams(uint8_t cmd, uint8_t numParam, tParam* params)
             WARN("Mismatch numParam");
             return 0;
         }
-
+				checkReceiverPacket();
         readAndCheckChar(END_CMD, &_data);
+				endPacket();
     }
     return 1;
 }
@@ -433,6 +443,8 @@ int SpiDrv::waitResponse(uint8_t cmd, uint8_t* numParamRead, uint8_t** params, u
     for (i = 0 ; i < WL_NETWORKS_LIST_MAXNUM ; i++)
             index[i] = (char *)params + WL_SSID_MAX_LENGTH*i;
 
+		SPI.transfer(0x03);
+		SPI.transfer(0x00);
     IF_CHECK_START_CMD(_data)
     {
         CHECK_DATA(cmd | REPLY_FLAG, _data){};
@@ -448,11 +460,13 @@ int SpiDrv::waitResponse(uint8_t cmd, uint8_t* numParamRead, uint8_t** params, u
         {
             for (i=0; i<numParam; ++i)
             {
+							checkReceiverPacket();
             	uint8_t paramLen = readParamLen8();
                 for (ii=0; ii<paramLen; ++ii)
                 {
                 	//ssid[ii] = commTransfer(DUMMY_DATA);
                     // Get Params data
+										checkReceiverPacket();
                     index[i][ii] = (uint8_t)commTransfer(DUMMY_DATA);
 
                 }
@@ -464,6 +478,7 @@ int SpiDrv::waitResponse(uint8_t cmd, uint8_t* numParamRead, uint8_t** params, u
             readAndCheckChar(END_CMD, &_data);
             return 0;
         }
+				checkReceiverPacket();
         readAndCheckChar(END_CMD, &_data);
 				//Serial.print("WaitResponse: ");
 				endPacket();
@@ -475,7 +490,7 @@ int SpiDrv::waitResponse(uint8_t cmd, uint8_t* numParamRead, uint8_t** params, u
 void SpiDrv::sendParam(uint8_t* param, uint8_t param_len, uint8_t lastParam)
 {
     int i = 0;
-		
+
     // Send Spi paramLen
     sendParamLen8(param_len);
     // Send Spi param data
@@ -507,7 +522,12 @@ void SpiDrv::checkTransferPacket(){
 void SpiDrv::checkReceiverPacket(){
 	if(byte_transfer == SPI_SLAVE_BUFFER){
 		byte_transfer = 0;
-		delayMicroseconds(200);
+		// commSlaveDeselect();
+		// commSlaveSelect();
+		// writeStatus(2);
+		// commSlaveDeselect();
+		delayMicroseconds(200);		//time need esp side
+		commSlaveSelect();
 		SPI.transfer(0x03);
 		SPI.transfer(0x00);
 	}
