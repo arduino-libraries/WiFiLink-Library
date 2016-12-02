@@ -337,6 +337,7 @@ uint8_t* WiFiDrv::getCurrentBSSID()
 
     //Wait the reply elaboration
     commDrv.waitForSlaveReady();
+    delay(2500);
 
     // Wait for reply
     uint8_t _dataLen = 0;
@@ -381,6 +382,7 @@ uint8_t WiFiDrv::getCurrentEncryptionType()
 
     //Wait the reply elaboration
     commDrv.waitForSlaveReady();
+    delay(2500);
 
     // Wait for reply
     uint8_t dataLen = 0;
