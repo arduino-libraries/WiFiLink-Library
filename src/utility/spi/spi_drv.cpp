@@ -29,28 +29,21 @@ extern "C" {
 #define DATAOUT     11 // MOSI
 #define DATAIN      12 // MISO
 #define SPICLOCK    13 // sck
-#define SLAVESELECT 10 // ss
+#define SLAVESELECT 31 // ss
 #define SLAVEREADY  7  // handshake pin
 #define WIFILED     9  // led on wifi shield
 
+//TODO
+//F_CPU param for Primo board
+#define F_CPU 64000000  //less F_CPU per arduino Primo
 #define DELAY_SPI(X) { int ii=0; do { asm volatile("nop"); } while (++ii < (X*F_CPU/16000000)); }
 #define DELAY_TRANSFER() DELAY_SPI(10)
 
 int byte_transfer = 0;
+bool check_begin_SPI = true;	//enable spi for Primo board
 
 void SpiDrv::begin()
 {
-	  SPI.begin();
-	  pinMode(SLAVESELECT, OUTPUT);
-	  pinMode(SLAVEREADY, INPUT);
-	  pinMode(WIFILED, OUTPUT);
-
-	  digitalWrite(SCK, LOW);
-	  digitalWrite(MOSI, LOW);
-	  digitalWrite(SS, HIGH);
-	  digitalWrite(SLAVESELECT, HIGH);
-	  digitalWrite(WIFILED, LOW);
-
 #ifdef _DEBUG_
 	  INIT_TRIGGER()
 #endif
@@ -62,6 +55,19 @@ void SpiDrv::end() {
 
 void SpiDrv::commSlaveSelect()
 {
+		if(check_begin_SPI){
+				delay(2000);
+				SPI.begin();
+				pinMode(SLAVEREADY, INPUT);
+				pinMode(WIFILED, OUTPUT);
+				pinMode(SLAVESELECT, OUTPUT);
+
+				digitalWrite(SCK, LOW);
+				digitalWrite(MOSI, LOW);
+				digitalWrite(SLAVESELECT, HIGH);
+				digitalWrite(WIFILED, LOW);
+				check_begin_SPI = false;
+		 }
     digitalWrite(SLAVESELECT,LOW);
 }
 
