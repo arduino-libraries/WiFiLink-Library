@@ -25,13 +25,14 @@ extern "C" {
 #include "utility/server_drv.h"
 #include "utility/wifi_drv.h"
 
-#include "WiFi.h"
+#include "WiFiLink.h"
 #include "WiFiUdp.h"
 #include "WiFiClient.h"
 #include "WiFiServer.h"
 
 
 /* Constructor */
+int availUdpData = 0;
 WiFiUDP::WiFiUDP() : _sock(NO_SOCKET_AVAIL) {}
 
 /* Start WiFiUDP socket, listening at local port PORT */
@@ -55,8 +56,15 @@ uint8_t WiFiUDP::begin(uint16_t port) {
 int WiFiUDP::available() {
 	 if (_sock != NO_SOCKET_AVAIL)
 	 {
-	      return ServerDrv::availData(_sock);
+	      //return ServerDrv::availData(_sock);
+        if(availUdpData == 0 ){
+          availUdpData = ServerDrv::availData(_sock);
+          return availUdpData;
+        }
+        else                        //EDIT by Andrea
+          return availUdpData;
 	 }
+
 	 return 0;
 }
 
@@ -98,6 +106,7 @@ int WiFiUDP::beginPacket(IPAddress ip, uint16_t port)
 
 int WiFiUDP::endPacket()
 {
+  availUdpData = 0;  //reset data available
 	return ServerDrv::sendUdpData(_sock);
 }
 
@@ -178,4 +187,3 @@ uint16_t  WiFiUDP::remotePort()
 	uint16_t port = (_remotePort[0]<<8)+_remotePort[1];
 	return port;
 }
-
