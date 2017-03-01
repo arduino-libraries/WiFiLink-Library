@@ -24,13 +24,17 @@ extern "C" {
   #include "utility/debug.h"
 }
 
-#include "WiFi.h"
+#include "WiFiLink.h"
 #include "WiFiClient.h"
 #include "WiFiServer.h"
 #include "utility/server_drv.h"
 
+#define ATTEMPTS 350
 
 uint16_t WiFiClient::_srcport = 1024;
+int availData = 0;
+uint8_t client_status = 0;
+int attempts_conn = 0;
 
 WiFiClient::WiFiClient() : _sock(MAX_SOCK_NUM) {
 }
@@ -86,18 +90,42 @@ size_t WiFiClient::write(const uint8_t *buf, size_t size) {
 	  setWriteError();
       return 0;
   }
-
-
+  //Serial.print("size:");Serial.println(size);
+  //if(size<=54){ //23
   if (!ServerDrv::sendData(_sock, buf, size))
   {
-	  setWriteError();
+    setWriteError();
       return 0;
   }
-  if (!ServerDrv::checkDataSent(_sock))
-  {
-	  setWriteError();
-      return 0;
-  }
+  // }
+  // else{
+  //   int pckt_len = ceil((float)size/23); //23 //54
+  //     //Serial.println(pckt_len);
+  //   for(int i=0;i<pckt_len;i++){
+  //     if(size >= ((i+1)*23)){ //23 //54
+  //       //Serial.println("a");
+  //       if (!ServerDrv::sendData(_sock, buf+(i*23), 23)) //54
+  //       {
+  //     	  setWriteError();
+  //           return 0;
+  //       }
+  //     }
+  //     else{
+  //       //Serial.println("b");
+  //       if (!ServerDrv::sendData(_sock, buf+(i*23), size-(i*23))) //54
+  //       {
+  //         setWriteError();
+  //           return 0;
+  //       }
+  //     }
+  //   }
+  //
+  // }
+  // if (!ServerDrv::checkDataSent(_sock))
+  // {
+	//   setWriteError();
+  //     return 0;
+  // }
 
   return size;
 }
@@ -105,9 +133,14 @@ size_t WiFiClient::write(const uint8_t *buf, size_t size) {
 int WiFiClient::available() {
   if (_sock != 255)
   {
-      return ServerDrv::availData(_sock);
+      if(availData == 0 ){
+        availData = ServerDrv::availData(_sock);
+        return availData;
+      }
+      else                        //EDIT by Andrea
+        return availData;
   }
-   
+
   return 0;
 }
 
@@ -115,8 +148,9 @@ int WiFiClient::read() {
   uint8_t b;
   if (!available())
     return -1;
-
+  availData--;
   ServerDrv::getData(_sock, &b);
+  //availData--;  //EDIT by Andrea
   return b;
 }
 
@@ -151,11 +185,12 @@ void WiFiClient::stop() {
 
   ServerDrv::stopClient(_sock);
   WiFiClass::_state[_sock] = NA_STATE;
-
+  availData = 0;
+  client_status =0;
   int count = 0;
   // wait maximum 5 secs for the connection to close
-  while (status() != CLOSED && ++count < 50)
-    delay(100);
+  // while (status() != CLOSED && ++count < 50)
+  //   delay(100);
 
   _sock = 255;
 }
@@ -165,12 +200,23 @@ uint8_t WiFiClient::connected() {
   if (_sock == 255) {
     return 0;
   } else {
-    uint8_t s = status();
+      uint8_t s;
+      attempts_conn++;
+      if(client_status == 0 || attempts_conn > ATTEMPTS){    //EDIT by Andrea
+        client_status = status();
+        s = client_status;
+        attempts_conn = 0;
+      }
+      else
+        s = client_status;
 
-    return !(s == LISTEN || s == CLOSED || s == FIN_WAIT_1 ||
-    		s == FIN_WAIT_2 || s == TIME_WAIT ||
-    		s == SYN_SENT || s== SYN_RCVD ||
-    		(s == CLOSE_WAIT));
+        // client_status = status();
+        // s = client_status;
+
+      return !(s == LISTEN || s == CLOSED || s == FIN_WAIT_1 ||
+      		s == FIN_WAIT_2 || s == TIME_WAIT ||
+      		s == SYN_SENT || s== SYN_RCVD ||
+      		(s == CLOSE_WAIT));
   }
 }
 
@@ -197,4 +243,3 @@ uint8_t WiFiClient::getFirstSocket()
     }
     return SOCK_NOT_AVAIL;
 }
-
