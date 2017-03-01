@@ -27,7 +27,7 @@
  */
 
 #include <SPI.h>
-#include <WiFiTest.h>
+#include <WiFiLink.h>
 
 char ssid[] = "yourNetwork";      // your network SSID (name)
 char pass[] = "yourPassword";   // your network password
@@ -52,7 +52,7 @@ void setup() {
   String fv = WiFi.firmwareVersion();
   if ( fv != "1.1.0" )
     Serial.println("Please upgrade the firmware");
-    
+
   while ( status != WL_CONNECTED) {
     Serial.print("Attempting to connect to SSID: ");
     Serial.println(ssid);
