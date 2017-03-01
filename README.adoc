@@ -1,13 +1,15 @@
-= WiFi Library for Arduino =
+= WiFiLink Library for Arduino WiFi Boards=
 
-With the Arduino WiFi Shield, this library allows an Arduino board to connect to the internet.
+This library allows Arduino WiFi Boards to connect to the internet
 
 For more information about this library please visit us at
-http://arduino.cc/en/Reference/WiFi
+http://www.arduino.org/learning/reference/wifilink
+
 
 == License ==
 
-Copyright (c) Arduino LLC. All right reserved.
+Copyright (c) 2016 - 2017 Arduino Srl. All right reserved.
+based on the original WiFiShield Library
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
