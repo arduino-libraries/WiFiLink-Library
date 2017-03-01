@@ -18,7 +18,7 @@
 */
 
 #include "utility/wifi_drv.h"
-#include "WiFi.h"
+#include "WiFiLink.h"
 
 extern "C" {
   #include "utility/wl_definitions.h"
