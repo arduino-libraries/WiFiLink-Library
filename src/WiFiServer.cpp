@@ -24,7 +24,7 @@ extern "C" {
   #include "utility/debug.h"
 }
 
-#include "WiFi.h"
+#include "WiFiLink.h"
 #include "WiFiClient.h"
 #include "WiFiServer.h"
 
@@ -36,6 +36,7 @@ WiFiServer::WiFiServer(uint16_t port)
 void WiFiServer::begin()
 {
     uint8_t _sock = WiFiClass::getSocket();
+
     if (_sock != NO_SOCKET_AVAIL)
     {
         ServerDrv::startServer(_port, _sock);
@@ -53,11 +54,10 @@ WiFiClient WiFiServer::available(byte* status)
     {
         if (WiFiClass::_server_port[sock] == _port)
         {
-        	WiFiClient client(sock);
+            WiFiClient client(sock);
             uint8_t _status = client.status();
             uint8_t _ser_status = this->status();
-            //Serial.print(" Client ");Serial.println(_status);
-            //Serial.print(" Server ");Serial.println(_ser_status);
+
             if (status != NULL)
             	*status = _status;
 
@@ -67,10 +67,11 @@ WiFiClient WiFiServer::available(byte* status)
             	ServerDrv::startServer(_port, sock);
             	cycle_server_down = 0;
             }
+
             if (_status == ESTABLISHED)
-            {//Serial.print(" Client Connesso: "); Serial.println(client);
+            {
                 return client;  //TODO
-            }//else Serial.print(" Client NON Connesso: ");
+            }
         }
     }
 
