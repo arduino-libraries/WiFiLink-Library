@@ -1,7 +1,7 @@
-/* 
+/*
 Description:
 This is a example code for Sandbox Electronics' I2C/SPI to UART bridge module.
-You can get one of those products on 
+You can get one of those products on
 http://sandboxelectronics.com
 
 Version:
@@ -16,9 +16,10 @@ Tiequan Shao          info@sandboxelectronics.com
 Lisence:
 CC BY-NC-SA 3.0
 
-Please keep the above information when you use this code in your project. 
+Please keep the above information when you use this code in your project.
 */
 
+#if defined(__AVR_ATmega328P__)
 
 #ifndef _SC16IS750_H_
 #define _SC16IS750_H_
@@ -95,11 +96,11 @@ Please keep the above information when you use this code in your project.
 #define     SC16IS750_INT_THR        (0X02)
 #define     SC16IS750_INT_RHR        (0X01)
 
-//Application Related 
+//Application Related
 
-#define     SC16IS750_CRYSTCAL_FREQ (14745600UL) 
-//#define   SC16IS750_CRYSTCAL_FREQ (1843200UL)   
-//#define     SC16IS750_CRYSTCAL_FREQ (16000000UL)    
+#define     SC16IS750_CRYSTCAL_FREQ (14745600UL)
+//#define   SC16IS750_CRYSTCAL_FREQ (1843200UL)
+//#define     SC16IS750_CRYSTCAL_FREQ (16000000UL)
 //#define     SC16IS750_DEBUG_PRINT   (0)
 #define     SC16IS750_PROTOCOL_I2C  (0)
 #define     SC16IS750_PROTOCOL_I2C  (0)
@@ -108,10 +109,10 @@ Please keep the above information when you use this code in your project.
 
 
 class WifiData : public Stream
-{ 
+{
     public:
 	WifiData();
-        void begin(uint32_t baud);                               
+        void begin(uint32_t baud);
         int read();
         size_t write(uint8_t val);
         int available();
@@ -127,8 +128,8 @@ class WifiData : public Stream
         void    InterruptControl(uint8_t int_ena);
         void    ModemPin(uint8_t gpio); //gpio == 0, gpio[7:4] are modem pins, gpio == 1 gpio[7:4] are gpios
         void    GPIOLatch(uint8_t latch);
-        
-    
+
+
     private:
         uint8_t device_address_sspin;
         uint8_t protocol;
@@ -139,14 +140,14 @@ class WifiData : public Stream
         void    SetLine(uint8_t data_length, uint8_t parity_select, uint8_t stop_length );
         void    GPIOSetPinMode(uint8_t pin_number, uint8_t i_o);
         void    GPIOSetPinState(uint8_t pin_number, uint8_t pin_state);
-        
+
         uint8_t GPIOGetPinState(uint8_t pin_number);
         void    GPIOSetPortMode(uint8_t port_io);
         void    GPIOSetPortState(uint8_t port_state);
         void    ResetDevice(void);
-        
-        
-        
+
+
+
         void    __isr(void);
         void    FIFOEnable(uint8_t fifo_enable);
         void    FIFOReset(uint8_t rx_fifo);
@@ -159,9 +160,11 @@ class WifiData : public Stream
     //  int16_t readwithtimeout();
         int     peek_buf;
         uint8_t peek_flag;
-        
+
 };
 
-extern WifiData ESPSerial;
+extern WifiData SerialESP;
+
+#endif
 
 #endif
