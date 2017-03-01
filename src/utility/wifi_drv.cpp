@@ -110,7 +110,7 @@ int8_t WiFiDrv::wifiSetNetwork(char* ssid, uint8_t ssid_len)
 
     //Wait the reply elaboration
     commDrv.waitForSlaveReady();
-    delay(500);
+    //delay(500);
     // Wait for reply
     uint8_t _data = 0;
     uint8_t _dataLen = 0;
@@ -134,7 +134,7 @@ int8_t WiFiDrv::wifiSetPassphrase(char* ssid, uint8_t ssid_len, const char *pass
 
     //Wait the reply elaboration
     commDrv.waitForSlaveReady();
-    delay(500);
+    //delay(500);
     // Wait for reply
     uint8_t _data = 0;
     uint8_t _dataLen = 0;
@@ -159,7 +159,7 @@ int8_t WiFiDrv::wifiSetKey(char* ssid, uint8_t ssid_len, uint8_t key_idx, const 
 
     //Wait the reply elaboration
     commDrv.waitForSlaveReady();
-    delay(500);
+    //delay(500);
     // Wait for reply
     uint8_t _data = 0;
     uint8_t _dataLen = 0;
@@ -256,6 +256,7 @@ uint8_t WiFiDrv::getConnectionStatus()
     // Wait for reply
     uint8_t _data = -1;
     uint8_t _dataLen = 0;
+
     commDrv.waitResponseCmd(GET_CONN_STATUS_CMD, PARAM_NUMS_1, &_data, &_dataLen);
 
     commDrv.commSlaveDeselect();
@@ -315,6 +316,7 @@ char* WiFiDrv::getCurrentSSID()
 
     //Wait the reply elaboration
     commDrv.waitForSlaveReady();
+    //delay(100);
 
     // Wait for reply
      uint8_t _dataLen = 0;
@@ -337,8 +339,7 @@ uint8_t* WiFiDrv::getCurrentBSSID()
 
     //Wait the reply elaboration
     commDrv.waitForSlaveReady();
-    delay(2500);
-
+    //delay(200);
     // Wait for reply
     uint8_t _dataLen = 0;
     commDrv.waitResponseCmd(GET_CURR_BSSID_CMD, PARAM_NUMS_1, _bssid, &_dataLen);
@@ -382,7 +383,7 @@ uint8_t WiFiDrv::getCurrentEncryptionType()
 
     //Wait the reply elaboration
     commDrv.waitForSlaveReady();
-    delay(2500);
+    //delay(2500);
 
     // Wait for reply
     uint8_t dataLen = 0;
@@ -505,6 +506,8 @@ uint8_t WiFiDrv::reqHostByName(const char* aHostname)
 
     //Wait the reply elaboration
     commDrv.waitForSlaveReady();
+    //delay(700);   //TODOb need a delay
+    //delayMicroseconds(500);
 
     // Wait for reply
     uint8_t _data = 0;
@@ -528,6 +531,7 @@ int WiFiDrv::getHostByName(IPAddress& aResult)
 
     //Wait the reply elaboration
     commDrv.waitForSlaveReady();
+    //delay(1000);
 
     // Wait for reply
     uint8_t _dataLen = 0;
