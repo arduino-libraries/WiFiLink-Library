@@ -16,7 +16,7 @@
 
 
 #include <SPI.h>
-#include <WiFi.h>
+#include <WiFiLink.h>
 
 void setup() {
   //Initialize serial and wait for port to open:
@@ -118,6 +118,3 @@ void printEncryptionType(int thisType) {
       break;
   }
 }
-
-
-

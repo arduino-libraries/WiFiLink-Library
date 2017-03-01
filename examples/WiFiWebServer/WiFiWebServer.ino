@@ -19,7 +19,7 @@
  */
 
 #include <SPI.h>
-#include <WiFi.h>
+#include <WiFiLink.h>
 
 
 char ssid[] = "yourNetwork";      // your network SSID (name)
@@ -135,4 +135,3 @@ void printWifiStatus() {
   Serial.print(rssi);
   Serial.println(" dBm");
 }
-

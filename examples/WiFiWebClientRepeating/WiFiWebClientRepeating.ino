@@ -18,8 +18,8 @@
  */
 
 #include <SPI.h>
-#include <WiFi.h>
- 
+#include <WiFiLink.h>
+
 char ssid[] = "yourNetwork";      //  your network SSID (name)
 char pass[] = "secretPassword";   // your network password
 int keyIndex = 0;            // your network key Index number (needed only for WEP)
@@ -127,5 +127,3 @@ void printWifiStatus() {
   Serial.print(rssi);
   Serial.println(" dBm");
 }
-
-

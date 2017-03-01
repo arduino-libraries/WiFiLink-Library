@@ -13,7 +13,7 @@
  by Tom Igoe
  */
 #include <SPI.h>
-#include <WiFi.h>
+#include <WiFiLink.h>
 
 char ssid[] = "yourNetwork";     //  your network SSID (name)
 char pass[] = "secretPassword";  // your network password
@@ -118,4 +118,3 @@ void printCurrentNet() {
   Serial.println(encryption, HEX);
   Serial.println();
 }
-
