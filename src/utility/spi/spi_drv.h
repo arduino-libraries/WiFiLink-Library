@@ -17,6 +17,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#if defined(ESP_CH_SPI)
+
 #ifndef SPI_Drv_h
 #define SPI_Drv_h
 
@@ -31,28 +33,32 @@
 #include <inttypes.h>
 #include "utility/wifi_spi.h"
 
-#define SPI_START_CMD_DELAY 	10
-
 #define NO_LAST_PARAM   0
 #define LAST_PARAM      1
-
 #define DUMMY_DATA  0x00
-
-// wait time for slave data (microseconds)
-#define SLAVEREADY_TIME 500
 #define SPI_SLAVE_BUFFER 32
+#define STARTCMD_WAIT 15						//delay need to manage the event ESP side (delay in us)
+#define STATUS_WAIT 20
+#define MAX_WAIT_TIME 30000					//max wait time for slave response (delay in us)
+#define MULTI_PACKET_TIME 60				//delay for packet size greater than 32
+#define END_TX_PACKET 1
+#define END_32L_PACKET 2
+
+#define SLAVESELECT 31              // ss							      //10 uno, 31 Primo
+#define SLAVEREADY  30               // handshake pin   	    //7 uno, 30 Primo
+//#define WIFILED     9               // led on wifi shield?
+
 
 #define WAIT_FOR_SLAVE_SELECT()	 \
   	SpiDrv::commSlaveSelect(); \
-	//SpiDrv::waitForSlaveReady();
-
 
 class SpiDrv
 {
 private:
-	//static bool waitSlaveReady();
-	static void waitForSlaveSign();
-	static void getParam(uint8_t* param);
+
+    static void waitForSlaveSign();
+
+    static void getParam(uint8_t* param);
 public:
 
     static void begin();
@@ -69,8 +75,6 @@ public:
 
     static void waitForSlaveReady();
 
-    //static int waitCommChar(char waitChar, char* readChar);
-
     static int waitCommChar(unsigned char waitChar);
 
     static int readAndCheckChar(char checkChar, char* readChar);
@@ -86,11 +90,7 @@ public:
     static int waitResponseData8_debug(uint8_t cmd, uint8_t* param, uint8_t* param_len);
 
     static int waitResponseData16(uint8_t cmd, uint8_t* param, uint16_t* param_len);
- /*
-    static int waitResponse(uint8_t cmd, tParam* params, uint8_t* numParamRead, uint8_t maxNumParams);
 
-    static int waitResponse(uint8_t cmd, uint8_t numParam, uint8_t* param, uint16_t* param_len);
-*/
     static int waitResponse(uint8_t cmd, uint8_t* numParamRead, uint8_t** params, uint8_t maxNumParams);
 
     static void sendParam(uint8_t* param, uint8_t param_len, uint8_t lastParam = NO_LAST_PARAM);
@@ -120,4 +120,5 @@ public:
     static void sendCmd(uint8_t cmd, uint8_t numParam);
 };
 
+#endif
 #endif

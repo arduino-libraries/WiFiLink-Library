@@ -16,37 +16,33 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+#if defined(ESP_CH_SPI)
 
 #include "Arduino.h"
 #include <SPI.h>
 #include "spi_drv.h"
 #include "pins_arduino.h"
-//#define _DEBUG_
+
 extern "C" {
 #include "utility/debug.h"
 }
 
-#define DATAOUT     11 // MOSI
-#define DATAIN      12 // MISO
-#define SPICLOCK    13 // sck
-#define SLAVESELECT 31 // ss
-#define SLAVEREADY  7  // handshake pin
-#define WIFILED     9  // led on wifi shield
+enum ESP_SPI_COMMANDS
+{
+	ESP8266_STATUS_READ			= 0x04,
+	ESP8266_STATUS_WRITE		= 0X01,
+	ESP8266_DATA_READ			= 0x03,
+	ESP8266_DATA_WRITE		= 0x02
 
-//TODO
-//F_CPU param for Primo board
-#define F_CPU 64000000  //less F_CPU per arduino Primo
-#define DELAY_SPI(X) { int ii=0; do { asm volatile("nop"); } while (++ii < (X*F_CPU/16000000)); }
-#define DELAY_TRANSFER() DELAY_SPI(10)
+} ESP_SPI_COMMANDS;
 
-int byte_transfer = 0;
-bool check_begin_SPI = true;	//enable spi for Primo board
+
+int byte_transfer = 0;		//number of transfered bytes
+bool spi_begin = true;		//check spi begin
 
 void SpiDrv::begin()
 {
-#ifdef _DEBUG_
-	  INIT_TRIGGER()
-#endif
+
 }
 
 void SpiDrv::end() {
@@ -55,18 +51,20 @@ void SpiDrv::end() {
 
 void SpiDrv::commSlaveSelect()
 {
-		if(check_begin_SPI){
+		if(spi_begin){
 				delay(2000);
-				SPI.begin();
+				//waitForSlaveSign();
+        SPI.begin();
+
 				pinMode(SLAVEREADY, INPUT);
-				pinMode(WIFILED, OUTPUT);
 				pinMode(SLAVESELECT, OUTPUT);
 
-				digitalWrite(SCK, LOW);
-				digitalWrite(MOSI, LOW);
+				// digitalWrite(SCK, LOW);
+				// digitalWrite(MOSI, LOW);
+				// digitalWrite(SS, HIGH);
 				digitalWrite(SLAVESELECT, HIGH);
-				digitalWrite(WIFILED, LOW);
-				check_begin_SPI = false;
+				spi_begin = false;
+
 		 }
     digitalWrite(SLAVESELECT,LOW);
 }
@@ -81,28 +79,25 @@ void SpiDrv::commSlaveDeselect()
 char SpiDrv::commTransfer(volatile char data)
 {
     char result = SPI.transfer(data);
-		//Serial.print(result,HEX);
 		byte_transfer++;
-    DELAY_TRANSFER();
 
     return result;                    // return the received byte
 }
 int SpiDrv::readStatus()
 {
-		SPI.transfer(0x04);
+		SPI.transfer(ESP8266_STATUS_READ);
 		uint32_t status = (SPI.transfer(0) | ((uint32_t)(SPI.transfer(0)) << 8) | ((uint32_t)(SPI.transfer(0)) << 16) | ((uint32_t)(SPI.transfer(0)) << 24));
 		return status;
 }
 void SpiDrv::writeStatus(uint32_t status)
 {
-		//digitalWrite(_ss_pin, LOW);
-		//delayMicroseconds(10);
-		SPI.transfer(0x01);
+
+		SPI.transfer(ESP8266_STATUS_WRITE);
 		SPI.transfer(status & 0xFF);
 		SPI.transfer((status >> 8) & 0xFF);
 		SPI.transfer((status >> 16) & 0xFF);
 		SPI.transfer((status >> 24) & 0xFF);
-		//digitalWrite(_ss_pin, HIGH);
+
 }
 
 int SpiDrv::waitCommChar(unsigned char waitChar)
@@ -134,135 +129,110 @@ char SpiDrv::readChar()
 	return readChar;
 }
 
+#define ESP_SPI_DATA_WRITE(x)                 \
+    delayMicroseconds(x);         						\
+    byte_transfer=0;                          \
+    SPI.transfer(ESP8266_DATA_WRITE);	        \
+    SPI.transfer(DUMMY_DATA);									\
+
+#define ESP_SPI_DATA_READ(x)                  \
+    delayMicroseconds(x);											\
+    SPI.transfer(ESP8266_DATA_READ);	        \
+    SPI.transfer(DUMMY_DATA);									\
+
 #define WAIT_START_CMD(x) waitCommChar(START_CMD)
 
-#define IF_CHECK_START_CMD(x)                      \
+#define IF_CHECK_START_CMD(x)										\
     if (!WAIT_START_CMD(_data))                 \
     {                                           \
-        TOGGLE_TRIGGER()                        \
         WARN("Error waiting START_CMD");        \
-				endPacket();														\
+        endPacket();														\
+				Serial.print("Error");Serial.print(x,HEX);	\
         return 0;                               \
     }else                                       \
 
-#define CHECK_DATA(check, x)                   \
-        if (!readAndCheckChar(check, &x))   \
-        {                                               \
-        	TOGGLE_TRIGGER()                        \
-            WARN("Reply error");                        \
-            INFO2(check, (uint8_t)x);							\
-						endPacket();													\
+#define CHECK_DATA(check, x)										\
+        if (!readAndCheckChar(check, &x)) 			\
+        {                                       \
+            WARN("Reply error");                \
+            endPacket();												\
+						Serial.print("ErrorCheck");Serial.print(check,HEX);Serial.print(x,HEX);	\
             return 0;                                   \
         }else                                           \
 
-#define waitSlaveReady() (digitalRead(SLAVEREADY) == LOW)
+#define waitSlaveReady()                                        \
+  unsigned long previousMillis = millis();                      \
+  while(digitalRead(SLAVEREADY) == LOW){                        \
+    unsigned long currentMillis = millis();                     \
+    if (currentMillis - previousMillis >= MAX_WAIT_TIME)				\
+    	break;                                                    \
+  }                                                             \
+
 #define waitSlaveSign() (digitalRead(SLAVEREADY) == HIGH)
 #define waitSlaveSignalH() while(digitalRead(SLAVEREADY) != HIGH){}
 #define waitSlaveSignalL() while(digitalRead(SLAVEREADY) != LOW){}
 
 void SpiDrv::waitForSlaveSign()
 {
-	while (!waitSlaveSign());
+	while (digitalRead(SLAVEREADY) != LOW);//)(!waitSlaveSign());
 }
 
 void SpiDrv::waitForSlaveReady()
 {
-	commSlaveDeselect();
-	commSlaveSelect();
+
+	delayMicroseconds(STATUS_WAIT);
 	writeStatus(1);
 	commSlaveDeselect();
-	delayMicroseconds(SLAVEREADY_TIME);
+  waitSlaveReady();
 	commSlaveSelect();
-
-	//while
-	// int loop =0;
-	// while(loop <100){
-	// 	int rs = readStatus();
-	// 	if(rs == 2)
-	// 		break;
-	// 	delayMicroseconds(10);
-	// 	loop++;
-	// }
 }
 
 void SpiDrv::getParam(uint8_t* param)
 {
     // Get Params data
     *param = commTransfer(DUMMY_DATA);
-    DELAY_TRANSFER();
+
 }
 
 int SpiDrv::waitResponseCmd(uint8_t cmd, uint8_t numParam, uint8_t* param, uint8_t* param_len)
 {
     char _data = 0;
     int ii = 0;
-		SPI.transfer(0x03);
-		SPI.transfer(0x00);
+
+    //SPI read command for ESP
+    ESP_SPI_DATA_READ(STARTCMD_WAIT);
 
     IF_CHECK_START_CMD(_data)
     {
-				//Serial.println("0");
+
         CHECK_DATA(cmd | REPLY_FLAG, _data){};
-				//Serial.println("1");
+
         CHECK_DATA(numParam, _data);
         {
-						//Serial.println("2");
             readParamLen8(param_len);
-						//Serial.println("3");
             for (ii=0; ii<(*param_len); ++ii)
             {
                 // Get Params data
-                //param[ii] = commTransfer(DUMMY_DATA);
-								//Serial.println("4");
 								checkReceiverPacket();
                 getParam(&param[ii]);
-								//Serial.println("5");
-								//Serial.print(param[ii],HEX);
             }
         }
-				//Serial.println("6");
 				checkReceiverPacket();
         readAndCheckChar(END_CMD, &_data);
-				//Serial.println("7");
-				//Serial.print("WaitResponseCmd: ");
 				endPacket();
 
     }
     return 1;
 }
-/*
-int SpiDrv::waitResponse(uint8_t cmd, uint8_t numParam, uint8_t* param, uint16_t* param_len)
-{
-    char _data = 0;
-    int i =0, ii = 0;
-
-    IF_CHECK_START_CMD(_data)
-    {
-        CHECK_DATA(cmd | REPLY_FLAG, _data){};
-
-        CHECK_DATA(numParam, _data);
-        {
-            readParamLen16(param_len);
-            for (ii=0; ii<(*param_len); ++ii)
-            {
-                // Get Params data
-                param[ii] = commTransfer(DUMMY_DATA);
-            }
-        }
-
-        readAndCheckChar(END_CMD, &_data);
-    }
-
-    return 1;
-}
-*/
 
 int SpiDrv::waitResponseData16(uint8_t cmd, uint8_t* param, uint16_t* param_len)
 {
     char _data = 0;
     uint16_t ii = 0;
-		SPI.transfer(0x03);
-		SPI.transfer(0x00);
+
+    //SPI read command for ESP
+    ESP_SPI_DATA_READ(STARTCMD_WAIT);
+
     IF_CHECK_START_CMD(_data)
     {
         CHECK_DATA(cmd | REPLY_FLAG, _data){};
@@ -277,48 +247,11 @@ int SpiDrv::waitResponseData16(uint8_t cmd, uint8_t* param, uint16_t* param_len)
                 // Get Params data
 								checkReceiverPacket();
                 param[ii] = commTransfer(DUMMY_DATA);
+								//Serial.println(param[ii]);
             }
         }
 				checkReceiverPacket();
         readAndCheckChar(END_CMD, &_data);
-				endPacket();
-    }
-
-    return 1;
-}
-
-int SpiDrv::waitResponseData8_debug(uint8_t cmd, uint8_t* param, uint8_t* param_len)
-{
-    char _data = 0;
-    int ii = 0;
-		SPI.transfer(0x03);
-		SPI.transfer(0x00);
-		Serial.println("0");
-    IF_CHECK_START_CMD(_data)
-    {
-			Serial.println("1");
-        CHECK_DATA(cmd | REPLY_FLAG, _data){};
-				Serial.println("2");
-        uint8_t numParam = readChar();
-        if (numParam != 0)
-        {
-					Serial.println("3");
-            readParamLen8(param_len);
-            for (ii=0; ii<(*param_len); ++ii)
-            {
-                // Get Params data
-								Serial.println("4");
-								checkReceiverPacket();
-								Serial.println("5");
-                param[ii] = commTransfer(DUMMY_DATA);
-								Serial.println("6");
-            }
-        }
-				Serial.println("7");
-				checkReceiverPacket();
-				Serial.println("8");
-        readAndCheckChar(END_CMD, &_data);
-				Serial.println("9");
 				endPacket();
     }
 
@@ -329,8 +262,10 @@ int SpiDrv::waitResponseData8(uint8_t cmd, uint8_t* param, uint8_t* param_len)
 {
     char _data = 0;
     int ii = 0;
-		SPI.transfer(0x03);
-		SPI.transfer(0x00);
+
+    //SPI read command for ESP
+    ESP_SPI_DATA_READ(STARTCMD_WAIT);
+
     IF_CHECK_START_CMD(_data)
     {
         CHECK_DATA(cmd | REPLY_FLAG, _data){};
@@ -359,8 +294,9 @@ int SpiDrv::waitResponseParams(uint8_t cmd, uint8_t numParam, tParam* params)
 {
     char _data = 0;
     int i =0, ii = 0;
-		SPI.transfer(0x03);
-		SPI.transfer(0x00);
+
+    //SPI read command for ESP
+    ESP_SPI_DATA_READ(STARTCMD_WAIT);
 
     IF_CHECK_START_CMD(_data)
     {
@@ -398,47 +334,6 @@ int SpiDrv::waitResponseParams(uint8_t cmd, uint8_t numParam, tParam* params)
     return 1;
 }
 
-/*
-int SpiDrv::waitResponse(uint8_t cmd, tParam* params, uint8_t* numParamRead, uint8_t maxNumParams)
-{
-    char _data = 0;
-    int i =0, ii = 0;
-
-    IF_CHECK_START_CMD(_data)
-    {
-        CHECK_DATA(cmd | REPLY_FLAG, _data){};
-
-        uint8_t numParam = readChar();
-
-        if (numParam > maxNumParams)
-        {
-            numParam = maxNumParams;
-        }
-        *numParamRead = numParam;
-        if (numParam != 0)
-        {
-            for (i=0; i<numParam; ++i)
-            {
-                params[i].paramLen = readParamLen8();
-
-                for (ii=0; ii<params[i].paramLen; ++ii)
-                {
-                    // Get Params data
-                    params[i].param[ii] = commTransfer(DUMMY_DATA);
-                }
-            }
-        } else
-        {
-            WARN("Error numParams == 0");
-            Serial.println(cmd, 16);
-            return 0;
-        }
-        readAndCheckChar(END_CMD, &_data);
-    }
-    return 1;
-}
-*/
-
 int SpiDrv::waitResponse(uint8_t cmd, uint8_t* numParamRead, uint8_t** params, uint8_t maxNumParams)
 {
     char _data = 0;
@@ -449,8 +344,9 @@ int SpiDrv::waitResponse(uint8_t cmd, uint8_t* numParamRead, uint8_t** params, u
     for (i = 0 ; i < WL_NETWORKS_LIST_MAXNUM ; i++)
             index[i] = (char *)params + WL_SSID_MAX_LENGTH*i;
 
-		SPI.transfer(0x03);
-		SPI.transfer(0x00);
+    //SPI read command for ESP
+    ESP_SPI_DATA_READ(STARTCMD_WAIT);
+
     IF_CHECK_START_CMD(_data)
     {
         CHECK_DATA(cmd | REPLY_FLAG, _data){};
@@ -470,7 +366,6 @@ int SpiDrv::waitResponse(uint8_t cmd, uint8_t* numParamRead, uint8_t** params, u
             	uint8_t paramLen = readParamLen8();
                 for (ii=0; ii<paramLen; ++ii)
                 {
-                	//ssid[ii] = commTransfer(DUMMY_DATA);
                     // Get Params data
 										checkReceiverPacket();
                     index[i][ii] = (uint8_t)commTransfer(DUMMY_DATA);
@@ -486,7 +381,6 @@ int SpiDrv::waitResponse(uint8_t cmd, uint8_t* numParamRead, uint8_t** params, u
         }
 				checkReceiverPacket();
         readAndCheckChar(END_CMD, &_data);
-				//Serial.print("WaitResponse: ");
 				endPacket();
     }
     return 1;
@@ -499,18 +393,18 @@ void SpiDrv::sendParam(uint8_t* param, uint8_t param_len, uint8_t lastParam)
 
     // Send Spi paramLen
     sendParamLen8(param_len);
+
     // Send Spi param data
     for (i=0; i<param_len; ++i)
     {
-
 			checkTransferPacket();
       commTransfer(param[i]);
     }
+
     // if lastParam==1 Send Spi END CMD
     if (lastParam == 1){
 				checkTransferPacket();
         commTransfer(END_CMD);
-				//Serial.print("sendParam: ");
 				endPacket();
 		}
 
@@ -518,24 +412,26 @@ void SpiDrv::sendParam(uint8_t* param, uint8_t param_len, uint8_t lastParam)
 
 void SpiDrv::checkTransferPacket(){
 	if(byte_transfer == SPI_SLAVE_BUFFER){
-		byte_transfer = 0;
-		delayMicroseconds(200);
-		SPI.transfer(0x02);
-		SPI.transfer(0x00);
+
+     //for size data greater then 32 byte
+     ESP_SPI_DATA_WRITE(MULTI_PACKET_TIME);
+
 	}
 }
 
 void SpiDrv::checkReceiverPacket(){
 	if(byte_transfer == SPI_SLAVE_BUFFER){
 		byte_transfer = 0;
-		// commSlaveDeselect();
-		// commSlaveSelect();
-		// writeStatus(2);
-		// commSlaveDeselect();
-		delayMicroseconds(200);		//time need esp side
+		delayMicroseconds(STATUS_WAIT);
+		writeStatus(2);
+		commSlaveDeselect();
+		delayMicroseconds(20);
+    waitSlaveReady();
 		commSlaveSelect();
-		SPI.transfer(0x03);
-		SPI.transfer(0x00);
+
+    //SPI read command for ESP
+    ESP_SPI_DATA_READ(STARTCMD_WAIT);
+
 	}
 }
 
@@ -543,7 +439,7 @@ void SpiDrv::endPacket(){
 
 		for(int i=byte_transfer;i<32;i++)
 				SPI.transfer(0);
-		//Serial.println(byte_transfer);
+
 		byte_transfer = 0;
 }
 
@@ -551,7 +447,7 @@ void SpiDrv::sendParamLen8(uint8_t param_len)
 {
     // Send Spi paramLen
     commTransfer(param_len);
-		//byte_transfer = byte_transfer +1;
+
 }
 
 void SpiDrv::sendParamLen16(uint16_t param_len)
@@ -559,7 +455,7 @@ void SpiDrv::sendParamLen16(uint16_t param_len)
     // Send Spi paramLen
     commTransfer((uint8_t)((param_len & 0xff00)>>8));
     commTransfer((uint8_t)(param_len & 0xff));
-		//byte_transfer = byte_transfer + 2;
+
 }
 
 uint8_t SpiDrv::readParamLen8(uint8_t* param_len)
@@ -599,9 +495,8 @@ void SpiDrv::sendBuffer(uint8_t* param, uint16_t param_len, uint8_t lastParam)
 
     // if lastParam==1 Send Spi END CMD
     if (lastParam == 1){
-				checkTransferPacket();
+				checkTransferPacket();      //check size packet
         commTransfer(END_CMD);
-				//Serial.print("sendBuffer: ");
 				endPacket();
 
 		}
@@ -612,19 +507,14 @@ void SpiDrv::sendParam(uint16_t param, uint8_t lastParam)
 {
 	// Send Spi paramLen
 	sendParamLen8(2);
-	//Serial.println("entrato in 2 param");
-	//commTransfer(0x30);
+
 	commTransfer((uint8_t)((param & 0xff00)>>8));
 	commTransfer((uint8_t)(param & 0xff));
- //commTransfer(0x00);
- //commTransfer(0x50);
-	//byte_transfer = byte_transfer + 2;
-	// if lastParam==1 Send Spi END CMD
+
+	//if lastParam is 1 Send Spi END CMD
 	if (lastParam == 1){
 			commTransfer(END_CMD);
-			//Serial.print("sendParam: ");
 			endPacket();
-			//byte_transfer = byte_transfer + 3;
 	}
 
 }
@@ -638,17 +528,13 @@ void SpiDrv::sendParam(uint16_t param, uint8_t lastParam)
 
 void SpiDrv::sendCmd(uint8_t cmd, uint8_t numParam)
 {
-    // Send Spi START CMD
 
-		SPI.transfer(0x02);		//need to start communication
-		SPI.transfer(0x00);
-		byte_transfer = 0;
+    //write SPI command need for ESP
+		//SPI.beginTransaction(settings);
+    ESP_SPI_DATA_WRITE(STARTCMD_WAIT);
+
 		// Send Spi START CMD
     commTransfer(START_CMD);
-
-    //waitForSlaveSign();
-    //wait the interrupt trigger on slave
-    delayMicroseconds(SPI_START_CMD_DELAY);
 
     // Send Spi C + cmd
     commTransfer(cmd & ~(REPLY_FLAG));
@@ -656,12 +542,12 @@ void SpiDrv::sendCmd(uint8_t cmd, uint8_t numParam)
     // Send Spi numParam
     commTransfer(numParam);
 
-		//byte_transfer = 3;
     // If numParam == 0 send END CMD
     if (numParam == 0){
         commTransfer(END_CMD);
-				//Serial.print("send cmd: ");
 				endPacket();
 		}
 
 }
+
+#endif
