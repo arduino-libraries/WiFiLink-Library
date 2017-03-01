@@ -7,7 +7,7 @@
 #######################################
 
 WiFi 		KEYWORD3
-WiFiTest	KEYWORD3
+WiFiLink	KEYWORD3
 WiFiUdp		KEYWORD3
 
 #######################################
