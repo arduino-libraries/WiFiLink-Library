@@ -6,8 +6,9 @@
 # Library (KEYWORD3)
 #######################################
 
-WiFi	KEYWORD3
-WiFiUdp	KEYWORD3
+WiFi 		KEYWORD3
+WiFiTest	KEYWORD3
+WiFiUdp		KEYWORD3
 
 #######################################
 # Datatypes (KEYWORD1)
