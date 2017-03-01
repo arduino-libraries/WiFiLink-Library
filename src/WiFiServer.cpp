@@ -28,6 +28,9 @@ extern "C" {
 #include "WiFiClient.h"
 #include "WiFiServer.h"
 
+#define ATT_ATT 10000
+int tent = 0;
+
 WiFiServer::WiFiServer(uint16_t port)
 {
     _port = port;
@@ -35,13 +38,15 @@ WiFiServer::WiFiServer(uint16_t port)
 
 void WiFiServer::begin()
 {
-    uint8_t _sock = WiFiClass::getSocket();
-
+    uint8_t _sock = WiFiLinkClass::getSocket();
+    //Serial.print("begin server");
     if (_sock != NO_SOCKET_AVAIL)
     {
+        //Serial.print("DENTRO SOCK");
         ServerDrv::startServer(_port, _sock);
-        WiFiClass::_server_port[_sock] = _port;
-        WiFiClass::_state[_sock] = _sock;
+        //Serial.print("DOPO SOCK");
+        WiFiLinkClass::_server_port[_sock] = _port;
+        WiFiLinkClass::_state[_sock] = _sock;
     }
 }
 
@@ -52,12 +57,13 @@ WiFiClient WiFiServer::available(byte* status)
 
     for (int sock = 0; sock < MAX_SOCK_NUM; sock++)
     {
-        if (WiFiClass::_server_port[sock] == _port)
+        if (WiFiLinkClass::_server_port[sock] == _port)
         {
             WiFiClient client(sock);
             uint8_t _status = client.status();
             uint8_t _ser_status = this->status();
-
+            //Serial.print(" Client ");Serial.println(_status);
+            //Serial.print(" Server ");Serial.println(_ser_status);
             if (status != NULL)
             	*status = _status;
 
@@ -65,13 +71,19 @@ WiFiClient WiFiServer::available(byte* status)
             if ((_ser_status == 0)&&(cycle_server_down++ > TH_SERVER_DOWN))
             {
             	ServerDrv::startServer(_port, sock);
+              //Serial.println("dentro start server");
             	cycle_server_down = 0;
             }
-
+            // else if ((_status == 0)&&(tent++ > ATT_ATT))
+            // {
+            // 	ServerDrv::startServer(_port, sock);
+            //   //Serial.println("dentro start ser");
+            // 	tent = 0;
+            // }
             if (_status == ESTABLISHED)
-            {
+            {//Serial.print(" Client Connesso: "); Serial.println(client);
                 return client;  //TODO
-            }
+            }//else Serial.print(" Client NON Connesso: ");
         }
     }
 
@@ -94,11 +106,11 @@ size_t WiFiServer::write(const uint8_t *buffer, size_t size)
 
     for (int sock = 0; sock < MAX_SOCK_NUM; sock++)
     {
-        if (WiFiClass::_server_port[sock] != 0)
+        if (WiFiLinkClass::_server_port[sock] != 0)
         {
         	WiFiClient client(sock);
 
-            if (WiFiClass::_server_port[sock] == _port &&
+            if (WiFiLinkClass::_server_port[sock] == _port &&
                 client.status() == ESTABLISHED)
             {
                 n+=client.write(buffer, size);
