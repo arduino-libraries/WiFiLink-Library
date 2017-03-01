@@ -16,12 +16,13 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+#if defined(ESP_CH_UART)
 
 #include "Arduino.h"
 #include "uart_drv.h"
 #include "serial.h"
-#include "pins_arduino.h"
-//#define _DEBUG_
+// #include "pins_arduino.h"
+#define _DEBUG_
 extern "C" {
 #include "utility/debug.h"
 }
@@ -139,13 +140,14 @@ int UartDrv::waitResponseCmd(uint8_t cmd, uint8_t numParam, uint8_t* param, uint
     int idx = 0;
 
 	 	UART_IF_CHECK_START_CMD(_data){
-				//Serial.println("1");
+
 		 		UART_CHECK_DATA(cmd | REPLY_FLAG, _data){};
-				//Serial.println("2");
+
 	  		UART_CHECK_DATA(numParam, _data);
 		 		{
-					//Serial.println("3");
+
 					readParamLen8(param_len);
+
 					for (int ii=0; ii<(*param_len); ++ii)
 					{
 
@@ -153,6 +155,7 @@ int UartDrv::waitResponseCmd(uint8_t cmd, uint8_t numParam, uint8_t* param, uint
 
 					}
 		 		}
+
 				readAndCheckChar(END_CMD, &_data);
 		}
     return 1;
@@ -276,47 +279,6 @@ int UartDrv::waitResponseParams(uint8_t cmd, uint8_t numParam, tParam* params)
 		}
     return 1;
 }
-
-/*
-int UartDrv::waitResponse(uint8_t cmd, tParam* params, uint8_t* numParamRead, uint8_t maxNumParams)
-{
-    char _data = 0;
-    int i =0, ii = 0;
-
-    IF_CHECK_START_CMD(_data)
-    {
-        CHECK_DATA(cmd | REPLY_FLAG, _data){};
-
-        uint8_t numParam = readChar();
-
-        if (numParam > maxNumParams)
-        {
-            numParam = maxNumParams;
-        }
-        *numParamRead = numParam;
-        if (numParam != 0)
-        {
-            for (i=0; i<numParam; ++i)
-            {
-                params[i].paramLen = readParamLen8();
-
-                for (ii=0; ii<params[i].paramLen; ++ii)
-                {
-                    // Get Params data
-                    params[i].param[ii] = spiTransfer(DUMMY_DATA);
-                }
-            }
-        } else
-        {
-            WARN("Error numParams == 0");
-            Serial.println(cmd, 16);
-            return 0;
-        }
-        readAndCheckChar(END_CMD, &_data);
-    }
-    return 1;
-}
-*/
 
 int UartDrv::waitResponse(uint8_t cmd, uint8_t* numParamRead, uint8_t** params, uint8_t maxNumParams)
 {
@@ -459,15 +421,8 @@ void UartDrv::sendCmd(uint8_t cmd, uint8_t numParam)
     // Send Spi START CMD
     wfSerial.write(START_CMD);
 
-    //waitForSlaveSign();
-    //wait the interrupt trigger on slave
-    //delayMicroseconds(SPI_START_CMD_DELAY);
-
     // Send Spi C + cmd
     wfSerial.write(cmd & ~(REPLY_FLAG));
-
-    // Send Spi totLen
-    //spiTransfer(totLen);
 
     // Send Spi numParam
     wfSerial.write(numParam);
@@ -477,3 +432,5 @@ void UartDrv::sendCmd(uint8_t cmd, uint8_t numParam)
         wfSerial.write(END_CMD);
 
 }
+
+#endif
