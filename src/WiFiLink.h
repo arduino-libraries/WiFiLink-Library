@@ -31,7 +31,7 @@ extern "C" {
 #include "WiFiClient.h"
 #include "WiFiServer.h"
 
-class WiFiLinkClass
+class WiFiClass
 {
 private:
 
@@ -40,7 +40,7 @@ public:
     static int16_t 	_state[MAX_SOCK_NUM];
     static uint16_t _server_port[MAX_SOCK_NUM];
 
-    WiFiLinkClass();
+    WiFiClass();
 
     /*
      * Get the first socket available
@@ -241,6 +241,6 @@ public:
     friend class WiFiServer;
 };
 
-extern WiFiLinkClass WiFi;
+extern WiFiClass WiFi;
 
 #endif

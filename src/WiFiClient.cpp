@@ -56,7 +56,7 @@ int WiFiClient::connect(IPAddress ip, uint16_t port) {
     if (_sock != NO_SOCKET_AVAIL)
     {
     	ServerDrv::startClient(uint32_t(ip), port, _sock);
-    	WiFiLinkClass::_state[_sock] = _sock;
+    	WiFiClass::_state[_sock] = _sock;
 
     	unsigned long start = millis();
 
@@ -184,7 +184,7 @@ void WiFiClient::stop() {
     return;
 
   ServerDrv::stopClient(_sock);
-  WiFiLinkClass::_state[_sock] = NA_STATE;
+  WiFiClass::_state[_sock] = NA_STATE;
   availData = 0;
   client_status =0;
   int count = 0;
@@ -236,7 +236,7 @@ WiFiClient::operator bool() {
 uint8_t WiFiClient::getFirstSocket()
 {
     for (int i = 0; i < MAX_SOCK_NUM; i++) {
-      if (WiFiLinkClass::_state[i] == NA_STATE)
+      if (WiFiClass::_state[i] == NA_STATE)
       {
           return i;
       }

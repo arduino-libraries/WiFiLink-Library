@@ -38,11 +38,11 @@ WiFiUDP::WiFiUDP() : _sock(NO_SOCKET_AVAIL) {}
 /* Start WiFiUDP socket, listening at local port PORT */
 uint8_t WiFiUDP::begin(uint16_t port) {
 
-    uint8_t sock = WiFiLinkClass::getSocket();
+    uint8_t sock = WiFiClass::getSocket();
     if (sock != NO_SOCKET_AVAIL)
     {
         ServerDrv::startServer(port, sock, UDP_MODE);
-        WiFiLinkClass::_server_port[sock] = port;
+        WiFiClass::_server_port[sock] = port;
         _sock = sock;
         _port = port;
         return 1;
@@ -94,11 +94,11 @@ int WiFiUDP::beginPacket(const char *host, uint16_t port)
 int WiFiUDP::beginPacket(IPAddress ip, uint16_t port)
 {
   if (_sock == NO_SOCKET_AVAIL)
-	  _sock = WiFiLinkClass::getSocket();
+	  _sock = WiFiClass::getSocket();
   if (_sock != NO_SOCKET_AVAIL)
   {
 	  ServerDrv::startClient(uint32_t(ip), port, _sock, UDP_MODE);
-	  WiFiLinkClass::_state[_sock] = _sock;
+	  WiFiClass::_state[_sock] = _sock;
 	  return 1;
   }
   return 0;

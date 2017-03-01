@@ -27,25 +27,25 @@ extern "C" {
 }
 
 // XXX: don't make assumptions about the value of MAX_SOCK_NUM.
-int16_t 	WiFiLinkClass::_state[MAX_SOCK_NUM] = { NA_STATE, NA_STATE, NA_STATE, NA_STATE };
-uint16_t 	WiFiLinkClass::_server_port[MAX_SOCK_NUM] = { 0, 0, 0, 0 };
+int16_t 	WiFiClass::_state[MAX_SOCK_NUM] = { NA_STATE, NA_STATE, NA_STATE, NA_STATE };
+uint16_t 	WiFiClass::_server_port[MAX_SOCK_NUM] = { 0, 0, 0, 0 };
 
-WiFiLinkClass::WiFiLinkClass()
+WiFiClass::WiFiClass()
 {
 	// Driver initialization
 	init();
 }
 
-void WiFiLinkClass::init()
+void WiFiClass::init()
 {
     WiFiDrv::wifiDriverInit();
 }
 
-uint8_t WiFiLinkClass::getSocket()
+uint8_t WiFiClass::getSocket()
 {
     for (uint8_t i = 0; i < MAX_SOCK_NUM; ++i)
     {
-        if (WiFiLinkClass::_server_port[i] == 0)
+        if (WiFiClass::_server_port[i] == 0)
         {
              return i;
         }
@@ -53,12 +53,12 @@ uint8_t WiFiLinkClass::getSocket()
     return NO_SOCKET_AVAIL;
 }
 
-char* WiFiLinkClass::firmwareVersion()
+char* WiFiClass::firmwareVersion()
 {
 	return WiFiDrv::getFwVersion();
 }
 
-int WiFiLinkClass::begin(char* ssid)
+int WiFiClass::begin(char* ssid)
 {
 	uint8_t status = WL_IDLE_STATUS;
 	uint8_t attempts = WL_MAX_ATTEMPT_CONNECTION;
@@ -78,7 +78,7 @@ int WiFiLinkClass::begin(char* ssid)
    return status;
 }
 
-int WiFiLinkClass::begin(char* ssid, uint8_t key_idx, const char *key)
+int WiFiClass::begin(char* ssid, uint8_t key_idx, const char *key)
 {
 	uint8_t status = WL_IDLE_STATUS;
 	uint8_t attempts = WL_MAX_ATTEMPT_CONNECTION;
@@ -97,7 +97,7 @@ int WiFiLinkClass::begin(char* ssid, uint8_t key_idx, const char *key)
    return status;
 }
 
-int WiFiLinkClass::begin(char* ssid, const char *passphrase)
+int WiFiClass::begin(char* ssid, const char *passphrase)
 {
 	uint8_t status = WL_IDLE_STATUS;
 	uint8_t attempts = WL_MAX_ATTEMPT_CONNECTION;
@@ -117,96 +117,96 @@ int WiFiLinkClass::begin(char* ssid, const char *passphrase)
     return status;
 }
 
-void WiFiLinkClass::config(IPAddress local_ip)
+void WiFiClass::config(IPAddress local_ip)
 {
 	WiFiDrv::config(1, (uint32_t)local_ip, 0, 0);
 }
 
-void WiFiLinkClass::config(IPAddress local_ip, IPAddress dns_server)
+void WiFiClass::config(IPAddress local_ip, IPAddress dns_server)
 {
 	WiFiDrv::config(1, (uint32_t)local_ip, 0, 0);
 	WiFiDrv::setDNS(1, (uint32_t)dns_server, 0);
 }
 
-void WiFiLinkClass::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway)
+void WiFiClass::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway)
 {
 	WiFiDrv::config(2, (uint32_t)local_ip, (uint32_t)gateway, 0);
 	WiFiDrv::setDNS(1, (uint32_t)dns_server, 0);
 }
 
-void WiFiLinkClass::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet)
+void WiFiClass::config(IPAddress local_ip, IPAddress dns_server, IPAddress gateway, IPAddress subnet)
 {
 	WiFiDrv::config(3, (uint32_t)local_ip, (uint32_t)gateway, (uint32_t)subnet);
 	WiFiDrv::setDNS(1, (uint32_t)dns_server, 0);
 }
 
-void WiFiLinkClass::setDNS(IPAddress dns_server1)
+void WiFiClass::setDNS(IPAddress dns_server1)
 {
 	WiFiDrv::setDNS(1, (uint32_t)dns_server1, 0);
 }
 
-void WiFiLinkClass::setDNS(IPAddress dns_server1, IPAddress dns_server2)
+void WiFiClass::setDNS(IPAddress dns_server1, IPAddress dns_server2)
 {
 	WiFiDrv::setDNS(2, (uint32_t)dns_server1, (uint32_t)dns_server2);
 }
 
-int WiFiLinkClass::disconnect()
+int WiFiClass::disconnect()
 {
     return WiFiDrv::disconnect();
 }
 
-uint8_t* WiFiLinkClass::macAddress(uint8_t* mac)
+uint8_t* WiFiClass::macAddress(uint8_t* mac)
 {
 	uint8_t* _mac = WiFiDrv::getMacAddress();
 	memcpy(mac, _mac, WL_MAC_ADDR_LENGTH);
     return mac;
 }
 
-IPAddress WiFiLinkClass::localIP()
+IPAddress WiFiClass::localIP()
 {
 	IPAddress ret;
 	WiFiDrv::getIpAddress(ret);
 	return ret;
 }
 
-IPAddress WiFiLinkClass::subnetMask()
+IPAddress WiFiClass::subnetMask()
 {
 	IPAddress ret;
 	WiFiDrv::getSubnetMask(ret);
 	return ret;
 }
 
-IPAddress WiFiLinkClass::gatewayIP()
+IPAddress WiFiClass::gatewayIP()
 {
 	IPAddress ret;
 	WiFiDrv::getGatewayIP(ret);
 	return ret;
 }
 
-char* WiFiLinkClass::SSID()
+char* WiFiClass::SSID()
 {
     return WiFiDrv::getCurrentSSID();
 }
 
-uint8_t* WiFiLinkClass::BSSID(uint8_t* bssid)
+uint8_t* WiFiClass::BSSID(uint8_t* bssid)
 {
 	uint8_t* _bssid = WiFiDrv::getCurrentBSSID();
 	memcpy(bssid, _bssid, WL_MAC_ADDR_LENGTH);
     return bssid;
 }
 
-int32_t WiFiLinkClass::RSSI()
+int32_t WiFiClass::RSSI()
 {
     return WiFiDrv::getCurrentRSSI();
 }
 
-uint8_t WiFiLinkClass::encryptionType()
+uint8_t WiFiClass::encryptionType()
 {
     return WiFiDrv::getCurrentEncryptionType();
 }
 
 
-int8_t WiFiLinkClass::scanNetworks()
+int8_t WiFiClass::scanNetworks()
 {
 	uint8_t attempts = 10;
 	uint8_t numOfNetworks = 0;
@@ -221,29 +221,29 @@ int8_t WiFiLinkClass::scanNetworks()
 	return numOfNetworks;
 }
 
-char* WiFiLinkClass::SSID(uint8_t networkItem)
+char* WiFiClass::SSID(uint8_t networkItem)
 {
 	return WiFiDrv::getSSIDNetoworks(networkItem);
 }
 
-int32_t WiFiLinkClass::RSSI(uint8_t networkItem)
+int32_t WiFiClass::RSSI(uint8_t networkItem)
 {
 	return WiFiDrv::getRSSINetoworks(networkItem);
 }
 
-uint8_t WiFiLinkClass::encryptionType(uint8_t networkItem)
+uint8_t WiFiClass::encryptionType(uint8_t networkItem)
 {
     return WiFiDrv::getEncTypeNetowrks(networkItem);
 }
 
-uint8_t WiFiLinkClass::status()
+uint8_t WiFiClass::status()
 {
     return WiFiDrv::getConnectionStatus();
 }
 
-int WiFiLinkClass::hostByName(const char* aHostname, IPAddress& aResult)
+int WiFiClass::hostByName(const char* aHostname, IPAddress& aResult)
 {
 	return WiFiDrv::getHostByName(aHostname, aResult);
 }
 
-WiFiLinkClass WiFi;
+WiFiClass WiFi;
