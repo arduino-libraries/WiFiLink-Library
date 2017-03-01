@@ -25,6 +25,8 @@
 //
 //********************************************/
 
+#if defined(ESP_CH_UART)
+
 #if defined(__AVR_ATmega328P__)
   #include "SC16IS750.h"
 #endif
@@ -34,16 +36,17 @@
 unsigned long _startMillis;
 unsigned long _timeout = 3000; //3 Second Serial Timeout
 
+
 void WfSerial::begin()
 {
 
 // #if defined(__AVR_ATmega328P__)
 //   ESPSerial.begin(9600);
-#if defined(ARDUINO_PRIMO) || defined(__AVR_ATmega32U4__)  //to test
-  Serial1.begin(9600);
-#else
+//#if defined(__AVR_ATmega32U4__)  //to test
+  Serial.begin(ESP_CH_UART_BR);
+//#else
 //   Serial.begin(9600);
- #endif
+ //#endif
 
 }
 
@@ -51,13 +54,14 @@ int WfSerial::read()
 {
   int c;
 
-#if defined(__AVR_ATmega328P__)
-  c = ESPSerial.read();
-#elif defined(ARDUINO_PRIMO) || defined(__AVR_ATmega32U4__)  //added to test with arduino Leonardo
-  c = Serial1.read();
-#else
+//#if defined(__AVR_ATmega328P__)
+//   c = ESPSerial.read();
+// #elif defined(__AVR_ATmega32U4__)  //added to test with arduino Leonardo
+//   //Serial.print("read");
+//   c = Serial1.read();
+// #else
   c = Serial.read();
-#endif
+//#endif
 
   return c;
 
@@ -66,13 +70,13 @@ int WfSerial::read()
 void WfSerial::write(unsigned char c)
 {
 
-#if defined(__AVR_ATmega328P__)
-  ESPSerial.write(c);
-#elif defined(ARDUINO_PRIMO) || defined(__AVR_ATmega32U4__)
-  Serial1.write(c);
-#else
+// #if defined(__AVR_ATmega328P__)
+//   ESPSerial.write(c);
+// #elif defined(__AVR_ATmega32U4__)
+//   Serial1.write(c);
+// #else
   Serial.write(c);
-#endif
+//#endif
 
 }
 
@@ -81,13 +85,13 @@ int WfSerial::available()
 
   int num;
 
-#if defined(__AVR_ATmega328P__)
-  num = ESPSerial.available();
-#elif defined(ARDUINO_PRIMO) || defined(__AVR_ATmega32U4__)
-  num = Serial1.available();
-#else
+// #if defined(__AVR_ATmega328P__)
+//   num = ESPSerial.available();
+// #elif defined(__AVR_ATmega32U4__)
+//   num = Serial1.available();
+// #else
   num = Serial.available();
-#endif
+//#endif
 
   return num;
 
@@ -120,3 +124,5 @@ String WfSerial::readStringUntil(char terminator){
 }
 
 WfSerial wfSerial;
+
+#endif

@@ -25,11 +25,15 @@
 //
 //********************************************/
 
+#if defined(ESP_CH_UART)
 
 #ifndef SERIAL_H
 #define SERIAL_H
 
 #include "Arduino.h"
+
+#define Serial SerialESP
+
 class WfSerial {
 private:
     int timedRead();
@@ -44,4 +48,5 @@ public:
 
 extern WfSerial wfSerial;
 
+#endif
 #endif
