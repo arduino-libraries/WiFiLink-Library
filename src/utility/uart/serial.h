@@ -31,6 +31,9 @@
 #define SERIAL_H
 
 #include "Arduino.h"
+#if defined(__AVR_ATmega328P__)
+#include "SC16IS750.h"    //Arduino Uno WiFi developer edition
+#endif
 
 #define Serial SerialESP
 

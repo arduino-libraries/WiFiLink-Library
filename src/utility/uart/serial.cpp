@@ -27,74 +27,38 @@
 
 #if defined(ESP_CH_UART)
 
-#if defined(__AVR_ATmega328P__)
-  #include "SC16IS750.h"
-#endif
-
 #include "serial.h"
 
 unsigned long _startMillis;
-unsigned long _timeout = 3000; //3 Second Serial Timeout
-
+unsigned long _timeout = 3000;  //3 Second Serial Timeout
+bool serial_begin = false;      //check serial begin status
 
 void WfSerial::begin()
 {
-
-// #if defined(__AVR_ATmega328P__)
-//   ESPSerial.begin(9600);
-//#if defined(__AVR_ATmega32U4__)  //to test
   Serial.begin(ESP_CH_UART_BR);
-//#else
-//   Serial.begin(9600);
- //#endif
-
 }
 
 int WfSerial::read()
 {
   int c;
-
-//#if defined(__AVR_ATmega328P__)
-//   c = ESPSerial.read();
-// #elif defined(__AVR_ATmega32U4__)  //added to test with arduino Leonardo
-//   //Serial.print("read");
-//   c = Serial1.read();
-// #else
   c = Serial.read();
-//#endif
-
   return c;
-
 }
 
 void WfSerial::write(unsigned char c)
 {
-
-// #if defined(__AVR_ATmega328P__)
-//   ESPSerial.write(c);
-// #elif defined(__AVR_ATmega32U4__)
-//   Serial1.write(c);
-// #else
+  if(!serial_begin){
+      begin();    //set in board.txt
+      serial_begin = true;
+  }
   Serial.write(c);
-//#endif
-
 }
 
 int WfSerial::available()
 {
-
   int num;
-
-// #if defined(__AVR_ATmega328P__)
-//   num = ESPSerial.available();
-// #elif defined(__AVR_ATmega32U4__)
-//   num = Serial1.available();
-// #else
   num = Serial.available();
-//#endif
-
   return num;
-
 }
 
 int WfSerial::timedRead()
@@ -102,25 +66,22 @@ int WfSerial::timedRead()
   int c;
   _startMillis = millis();
   do {
-    //c = Serial1.read();//
     c = read();
     if (c >= 0) return c;
   } while(millis() - _startMillis < _timeout);
   return -1;     // -1 indicates timeout
 }
 
-String WfSerial::readStringUntil(char terminator){
-
+String WfSerial::readStringUntil(char terminator)
+{
 	String ret;
 	int c = timedRead();
-
 	while (c >= 0 && (char)c != terminator)
 	{
 		ret += (char)c;
 		c = timedRead();
 	}
 	return ret;
-
 }
 
 WfSerial wfSerial;

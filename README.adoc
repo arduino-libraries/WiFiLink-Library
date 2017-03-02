@@ -1,4 +1,4 @@
-= WiFiLink Library for Arduino WiFi Boards=
+= WiFiLink Library for Arduino WiFi Boards
 
 This library allows Arduino WiFi Boards to connect to the internet
 
