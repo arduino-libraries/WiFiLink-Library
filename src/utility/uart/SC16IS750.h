@@ -163,7 +163,7 @@ class WifiData : public Stream
 
 };
 
-extern WifiData SerialESP;
+extern WifiData SeriaWiFi;
 
 #endif
 
