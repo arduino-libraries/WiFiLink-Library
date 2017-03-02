@@ -485,6 +485,6 @@ int WifiData::peek()
 
 }
 
-WifiData SerialESP;
+WifiData SerialWiFi;
 
 #endif

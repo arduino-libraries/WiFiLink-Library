@@ -35,7 +35,7 @@
 #include "SC16IS750.h"    //Arduino Uno WiFi developer edition
 #endif
 
-#define Serial SerialESP
+#define Serial SerialWiFi
 
 class WfSerial {
 private:
