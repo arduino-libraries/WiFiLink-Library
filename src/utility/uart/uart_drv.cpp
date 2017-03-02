@@ -30,7 +30,7 @@ extern "C" {
 
 void UartDrv::begin()
 {
-	  wfSerial.begin();
+	  //wfSerial.begin();
 #ifdef _DEBUG_
 	  INIT_TRIGGER()
 #endif

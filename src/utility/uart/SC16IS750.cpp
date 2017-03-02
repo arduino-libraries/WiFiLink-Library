@@ -25,7 +25,6 @@ Please keep the above information when you use this code in your project.
 #include <Wire.h>
 
 #define WIRE Wire
-#define BAUDRATE 9600
 bool begin_done = false;
 
 WifiData::WifiData()
@@ -63,10 +62,6 @@ int WifiData::read(void)
 
 size_t WifiData::write(uint8_t val)
 {
-    if(!begin_done){      //enable wire
-        begin(BAUDRATE);
-        begin_done = true;
-    }
     WriteByte(val);
 }
 
