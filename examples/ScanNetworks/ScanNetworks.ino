@@ -17,7 +17,7 @@
  */
 
 
-#include <SPI.h>
+
 #include <WiFiLink.h>
 
 void setup() {

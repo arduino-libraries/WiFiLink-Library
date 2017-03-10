@@ -14,12 +14,11 @@
  by Federico Vanzati
  modified 10 March 2017
  by Sergio Tomasello and Andrea Cannistrá
- 
+
  http://arduino.cc/en/Tutorial/WifiWebClientRepeating
  This code is in the public domain.
  */
 
-#include <SPI.h>
 #include <WiFiLink.h>
 
 char ssid[] = "yourNetwork";      //  your network SSID (name)

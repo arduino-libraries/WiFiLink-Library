@@ -14,8 +14,6 @@
  by Sergio Tomasello and Andrea Cannistrá
  */
 
-
-#include <SPI.h>
 #include <WiFiLink.h>
 #include <WiFiUdp.h>
 

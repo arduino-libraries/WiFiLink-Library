@@ -10,7 +10,7 @@
  * Modified and adapted 10 March 2017 by Sergio Tomasello
  *
  */
-#include <SPI.h>
+
 #include <WiFiLink.h>
 
 void setup() {

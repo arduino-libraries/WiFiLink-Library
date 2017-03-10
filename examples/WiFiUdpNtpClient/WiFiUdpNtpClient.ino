@@ -17,7 +17,6 @@
  This code is in the public domain.
  */
 
-#include <SPI.h>
 #include <WiFiLink.h>
 #include <WiFiUdp.h>
 

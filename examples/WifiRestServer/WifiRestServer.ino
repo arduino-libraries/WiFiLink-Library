@@ -27,7 +27,6 @@
  by Sergio Tomasello
  */
 
-#include <SPI.h>
 #include <WiFiLink.h>
 
 char ssid[] = "yourNetwork";      // your network SSID (name)

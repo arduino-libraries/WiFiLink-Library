@@ -14,7 +14,7 @@
  modified 10 March 2017
  by Sergio Tomasello and Andrea Cannistrá
  */
-#include <SPI.h>
+
 #include <WiFi.h>
 
 char ssid[] = "yourNetwork";     // the name of your network
