@@ -5,19 +5,20 @@
  using an Arduino Wifi shield.
 
  Circuit:
- * WiFi shield attached to pins SPI pins and pin 7
+ * Arduino Primo or STAR OTTO or Uno WiFi Developer Edition (with WiFi Link firmware running)
 
  created 23 April 2012
  modified 31 May 2012
  by Tom Igoe
  modified 13 Jan 2014
  by Federico Vanzati
+ modified 10 March 2017
+ by Sergio Tomasello and Andrea Cannistrá
 
  http://arduino.cc/en/Tutorial/WifiWebClientRepeating
  This code is in the public domain.
  */
 
-#include <SPI.h>
 #include <WiFiLink.h>
 
 char ssid[] = "yourNetwork";      //  your network SSID (name)
@@ -43,16 +44,11 @@ void setup() {
     ; // wait for serial port to connect. Needed for Leonardo only
   }
 
-  // check for the presence of the shield:
-  if (WiFi.status() == WL_NO_SHIELD) {
-    Serial.println("WiFi shield not present");
-    // don't continue:
-    while (true);
+  //Check if communication with wifi module has been established
+  if (WiFi.status() == WL_NO_WIFI_MODULE_COMM) {
+    Serial.println("Communication with WiFi module not established.");
+    while (true); // don't continue:
   }
-
-  String fv = WiFi.firmwareVersion();
-  if ( fv != "1.1.0" )
-    Serial.println("Please upgrade the firmware");
 
   // attempt to connect to Wifi network:
   while ( status != WL_CONNECTED) {

@@ -1,21 +1,23 @@
 /*
 
- This example  prints the Wifi shield's MAC address, and
- scans for available Wifi networks using the Wifi shield.
+ This example prints the board MAC address, and
+ scans for available Wifi networks.
  Every ten seconds, it scans again. It doesn't actually
  connect to any network, so no encryption scheme is specified.
 
  Circuit:
- * WiFi shield attached
+ * Arduino Primo or STAR OTTO or Uno WiFi Developer Edition (with WiFi Link firmware running)
 
  created 13 July 2010
  by dlf (Metodo2 srl)
  modified 21 Junn 2012
  by Tom Igoe and Jaymes Dec
+ modified 10 March 2017
+ by Sergio Tomasello and Andrea Cannistrá
  */
 
 
-#include <SPI.h>
+
 #include <WiFiLink.h>
 
 void setup() {
@@ -25,16 +27,11 @@ void setup() {
     ; // wait for serial port to connect. Needed for Leonardo only
   }
 
-  // check for the presence of the shield:
-  if (WiFi.status() == WL_NO_SHIELD) {
-    Serial.println("WiFi shield not present");
-    // don't continue:
-    while (true);
+  //Check if communication with the wifi module has been established
+  if (WiFi.status() == WL_NO_WIFI_MODULE_COMM) {
+    Serial.println("Communication with WiFi module not established.");
+    while (true); // don't continue:
   }
-
-  String fv = WiFi.firmwareVersion();
-  if ( fv != "1.1.0" )
-    Serial.println("Please upgrade the firmware");
 
   // Print WiFi MAC address:
   printMacAddress();
@@ -115,6 +112,9 @@ void printEncryptionType(int thisType) {
       break;
     case ENC_TYPE_AUTO:
       Serial.println("Auto");
+      break;
+    case ENC_TYPE_UNKNOW:
+      Serial.println("Unknown");
       break;
   }
 }

@@ -1,13 +1,8 @@
 /*
 
- WifiRestServer.ino
-
- Arduino RestServer with ESP8266
-
- This example for the Arduino shows how to use the
- to access the digital and analog pins
- on the board through REST calls. It demonstrates how
- you can create your own API when using REST style
+ Access digital and analog pins of the board
+ through REST calls. It demonstrates how you
+ can create your own API when using REST style
  calls through the browser.
 
  Possible commands created in this shetch:
@@ -22,11 +17,11 @@
  This example code is part of the public domain
 
  created 28 February 2017
- by andrea-83
-
+ by Andrea Cannistrá
+ modified 10 March 2017
+ by Sergio Tomasello
  */
 
-#include <SPI.h>
 #include <WiFiLink.h>
 
 char ssid[] = "yourNetwork";      // your network SSID (name)
@@ -42,16 +37,12 @@ void setup() {
   while (!Serial) {
     ; // wait for serial port to connect. Needed for Leonardo only
   }
-    delay(2000);
-  if (WiFi.status() == WL_NO_SHIELD) {
-    Serial.println("WiFi shield not present");
-    // don't continue:
-    while (true);
-  }
 
-  String fv = WiFi.firmwareVersion();
-  if ( fv != "1.1.0" )
-    Serial.println("Please upgrade the firmware");
+  //Check if communication with wifi module has been established
+  if (WiFi.status() == WL_NO_WIFI_MODULE_COMM) {
+    Serial.println("Communication with WiFi module not established.");
+    while (true); // don't continue:
+  }
 
   while ( status != WL_CONNECTED) {
     Serial.print("Attempting to connect to SSID: ");
