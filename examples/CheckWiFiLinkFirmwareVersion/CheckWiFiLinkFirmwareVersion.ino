@@ -24,13 +24,11 @@ void setup() {
   Serial.println("WiFi Link firmware check.");
   Serial.println();
 
-  // Check for the presence of the shield
-  // Serial.print("WiFi101 shield: ");
-  // if (WiFi.status() == WL_NO_SHIELD) {
-  //   Serial.println("NOT PRESENT");
-  //   return; // don't continue
-  // }
-  // Serial.println("DETECTED");
+  //Check if communication with the wifi module has been established
+  if (WiFi.status() == WL_NO_WIFI_MODULE_COMM) {
+    Serial.println("Communication with WiFi module not established.");
+    while (true); // don't continue:
+  }
 
   // Print firmware version on the shield
   String fv = WiFi.firmwareVersion();

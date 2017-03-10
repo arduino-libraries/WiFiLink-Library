@@ -36,10 +36,10 @@ void setup() {
   Serial.begin(9600);      // initialize serial communication
   pinMode(9, OUTPUT);      // set the LED pin mode
 
-  // check for the presence of the shield:
-  if (WiFi.status() == WL_NO_SHIELD) {
-    Serial.println("WiFi shield not present");
-    while (true);       // don't continue
+  //Check if communication with the wifi module has been established
+  if (WiFi.status() == WL_NO_WIFI_MODULE_COMM) {
+    Serial.println("Communication with WiFi module not established.");
+    while (true); // don't continue:
   }
 
   // attempt to connect to Wifi network:
