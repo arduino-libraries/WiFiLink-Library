@@ -20,6 +20,8 @@
 #ifndef WiFi_h
 #define WiFi_h
 
+#define WIFI_FIRMWARE_REQUIRED "1.0.0"
+
 #include <inttypes.h>
 
 extern "C" {
