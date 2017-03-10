@@ -12,6 +12,8 @@
  by dlf (Metodo2 srl)
  modified 21 Junn 2012
  by Tom Igoe and Jaymes Dec
+ modified 10 March 2017
+ by Sergio Tomasello and Andrea Cannistrá
  */
 
 
@@ -111,6 +113,9 @@ void printEncryptionType(int thisType) {
       break;
     case ENC_TYPE_AUTO:
       Serial.println("Auto");
+      break;
+    case ENC_TYPE_UNKNOW:
+      Serial.println("Unknown");
       break;
   }
 }
