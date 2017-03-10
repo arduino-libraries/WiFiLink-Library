@@ -22,8 +22,9 @@
  This example code is part of the public domain
 
  created 28 February 2017
- by andrea-83
-
+ by Andrea Cannistrá
+ modified 10 March 2017
+ by Sergio Tomasello
  */
 
 #include <SPI.h>
@@ -48,10 +49,6 @@ void setup() {
     // don't continue:
     while (true);
   }
-
-  String fv = WiFi.firmwareVersion();
-  if ( fv != "1.1.0" )
-    Serial.println("Please upgrade the firmware");
 
   while ( status != WL_CONNECTED) {
     Serial.print("Attempting to connect to SSID: ");

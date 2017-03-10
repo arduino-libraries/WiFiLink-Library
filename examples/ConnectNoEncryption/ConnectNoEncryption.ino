@@ -11,6 +11,8 @@
  by dlf (Metodo2 srl)
  modified 31 May 2012
  by Tom Igoe
+ modified 10 March 2017
+ by Sergio Tomasello and Andrea Cannistrá
  */
 #include <SPI.h>
 #include <WiFi.h>
@@ -31,10 +33,6 @@ void setup() {
     // don't continue:
     while (true);
   }
-
-  String fv = WiFi.firmwareVersion();
-  if ( fv != "1.1.0" )
-    Serial.println("Please upgrade the firmware");
 
   // attempt to connect to Wifi network:
   while ( status != WL_CONNECTED) {
@@ -123,4 +121,3 @@ void printCurrentNet() {
   Serial.print("Encryption Type:");
   Serial.println(encryption, HEX);
 }
-

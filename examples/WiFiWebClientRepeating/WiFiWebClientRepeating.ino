@@ -12,7 +12,9 @@
  by Tom Igoe
  modified 13 Jan 2014
  by Federico Vanzati
-
+ modified 10 March 2017
+ by Sergio Tomasello and Andrea Cannistrá
+ 
  http://arduino.cc/en/Tutorial/WifiWebClientRepeating
  This code is in the public domain.
  */
@@ -49,10 +51,6 @@ void setup() {
     // don't continue:
     while (true);
   }
-
-  String fv = WiFi.firmwareVersion();
-  if ( fv != "1.1.0" )
-    Serial.println("Please upgrade the firmware");
 
   // attempt to connect to Wifi network:
   while ( status != WL_CONNECTED) {
