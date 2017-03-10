@@ -1,7 +1,7 @@
 /*
 
  This example connects to a WEP-encrypted Wifi network.
- Then it prints the  MAC address of the Wifi shield,
+ Then it prints the  MAC address of the Wifi module,
  the IP address obtained, and other network details.
 
  If you use 40-bit WEP, you need a key that is 10 characters long,
@@ -15,7 +15,8 @@
  all in the 0-9, A-F range.
 
  Circuit:
- * WiFi shield attached
+ * Arduino Primo or STAR OTTO or Uno WiFi Developer Edition (with WiFi Link firmware running)
+
 
  created 13 July 2010
  by dlf (Metodo2 srl)

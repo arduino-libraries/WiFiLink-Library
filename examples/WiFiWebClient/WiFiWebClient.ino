@@ -3,7 +3,7 @@
   Web client
 
  This sketch connects to a website (http://www.google.com)
- using a WiFi shield.
+ using an Arduino board with WiFi Link.
 
  This example is written for a network using WPA encryption. For
  WEP or WPA, change the Wifi.begin() call accordingly.
@@ -12,7 +12,7 @@
  WEP or WPA, change the Wifi.begin() call accordingly.
 
  Circuit:
- * WiFi shield attached
+ * Arduino Primo or STAR OTTO or Uno WiFi Developer Edition (with WiFi Link firmware running)
 
  created 13 July 2010
  by dlf (Metodo2 srl)

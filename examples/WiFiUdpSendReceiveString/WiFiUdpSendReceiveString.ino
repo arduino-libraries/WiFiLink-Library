@@ -2,7 +2,7 @@
 /*
   WiFi UDP Send and Receive String
 
- This sketch wait an UDP packet on localPort using a WiFi shield.
+ This sketch wait an UDP packet on localPort using an Arduino board with WiFi Link.
  When a packet is received an Acknowledge packet is sent to the client on port remotePort
 
  Circuit:

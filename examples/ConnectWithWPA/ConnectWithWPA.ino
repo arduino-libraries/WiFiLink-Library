@@ -5,7 +5,7 @@
  the IP address obtained, and other network details.
 
  Circuit:
- * WiFi shield attached
+ * Arduino Primo or STAR OTTO or Uno WiFi Developer Edition (with WiFi Link firmware running)
 
  created 13 July 2010
  by dlf (Metodo2 srl)

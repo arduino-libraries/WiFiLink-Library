@@ -2,7 +2,7 @@
   WiFi Web Server LED Blink
 
  A simple web server that lets you blink an LED via the web.
- This sketch will print the IP address of your WiFi Shield (once connected)
+ This sketch will print the IP address of your board (once connected)
  to the Serial monitor. From there, you can open that address in a web browser
  to turn on and off the LED on pin 9.
 
@@ -14,7 +14,7 @@
  WEP or WPA, change the Wifi.begin() call accordingly.
 
  Circuit:
- * WiFi shield attached
+ * Arduino Primo or STAR OTTO or Uno WiFi Developer Edition (with WiFi Link firmware running)
  * LED attached to pin 9
 
  created 25 Nov 2012

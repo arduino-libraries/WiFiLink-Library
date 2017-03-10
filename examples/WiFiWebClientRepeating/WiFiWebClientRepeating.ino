@@ -5,7 +5,7 @@
  using an Arduino Wifi shield.
 
  Circuit:
- * WiFi shield attached to pins SPI pins and pin 7
+ * Arduino Primo or STAR OTTO or Uno WiFi Developer Edition (with WiFi Link firmware running)
 
  created 23 April 2012
  modified 31 May 2012

@@ -10,7 +10,7 @@
 
 
  Circuit:
- * WiFi shield attached
+ * Arduino Primo or STAR OTTO or Uno WiFi Developer Edition (with WiFi Link firmware running)
 
  created 18 Dec 2009
  by David A. Mellis

@@ -2,7 +2,7 @@
  * This example check if the WiFi Link firmware is updated.
  *
  * Circuit:
- * - Arduino Primo or STAR OTTO, or (Uno WiFi Developer Edition with WiFiLink firmware running)
+ * Arduino Primo or STAR OTTO or Uno WiFi Developer Edition (with WiFi Link firmware running)
  *
  * Created 29 July 2015 by Cristian Maglie
  * This code is in the public domain.

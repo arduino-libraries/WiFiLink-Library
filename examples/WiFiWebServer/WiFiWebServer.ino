@@ -8,7 +8,7 @@
  WEP or WPA, change the Wifi.begin() call accordingly.
 
  Circuit:
- * WiFi shield attached
+ * Arduino Primo or STAR OTTO or Uno WiFi Developer Edition (with WiFi Link firmware running)
  * Analog inputs attached to pins A0 through A5 (optional)
 
  created 13 July 2010

@@ -1,12 +1,12 @@
 /*
 
- This example  prints the Wifi shield's MAC address, and
- scans for available Wifi networks using the Wifi shield.
+ This example prints the board MAC address, and
+ scans for available Wifi networks.
  Every ten seconds, it scans again. It doesn't actually
  connect to any network, so no encryption scheme is specified.
 
  Circuit:
- * WiFi shield attached
+ * Arduino Primo or STAR OTTO or Uno WiFi Developer Edition (with WiFi Link firmware running)
 
  created 13 July 2010
  by dlf (Metodo2 srl)
