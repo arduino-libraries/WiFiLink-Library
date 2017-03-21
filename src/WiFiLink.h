@@ -29,6 +29,10 @@ extern "C" {
 	#include "utility/wl_types.h"
 }
 
+#if defined(__AVR_ATmega328P__) && defined(ESP_CH_UART)
+#include "utility/uart/SC16IS750.h"
+#endif
+
 #include "IPAddress.h"
 #include "WiFiClient.h"
 #include "WiFiServer.h"
