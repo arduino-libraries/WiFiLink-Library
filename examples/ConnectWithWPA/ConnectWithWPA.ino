@@ -1,6 +1,6 @@
 /*
 
- This example connects to an unencrypted Wifi network.
+ This example connects to a WPA encrypted Wifi network.
  Then it prints the  MAC address of the Wifi module,
  the IP address obtained, and other network details.
 
