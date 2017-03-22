@@ -39,7 +39,7 @@ const unsigned long postingInterval = 10L * 1000L; // delay between updates, in 
 
 void setup() {
   //Initialize serial and wait for port to open:
-  Serial.begin(9600);
+  Serial.begin(115200);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
   }
