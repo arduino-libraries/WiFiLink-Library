@@ -33,18 +33,12 @@ void setup() {
     while (true); // don't continue:
   }
 
-  // attempt to connect to Wifi network:
-  while ( status != WL_CONNECTED) {
-    Serial.print("Attempting to connect to open SSID: ");
-    Serial.println(ssid);
-    status = WiFi.begin(ssid);
+  // connect to Wifi network:
+  WiFi.begin(ssid);
+  // wait 10 seconds for connection:
+  delay(10000);
 
-    // wait 10 seconds for connection:
-    delay(10000);
-  }
-
-  // you're connected now, so print out the data:
-  Serial.print("You're connected to the network");
+  // print out the data:
   printCurrentNet();
   printWifiData();
 }
