@@ -58,6 +58,10 @@ public:
      */
     static char* firmwareVersion();
 
+    /*
+     * Check the firmware version required
+     */
+    bool checkFirmwareVersion(String fw_required);
 
     /* Start Wifi connection for OPEN networks
      *

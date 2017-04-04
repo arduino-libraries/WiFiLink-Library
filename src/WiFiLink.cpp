@@ -58,6 +58,23 @@ char* WiFiClass::firmwareVersion()
 	return WiFiDrv::getFwVersion();
 }
 
+bool WiFiClass::checkFirmwareVersion(String fw_required)
+{
+	String fw_version = WiFiDrv::getFwVersion();
+	int idx = fw_version.indexOf('.');
+	int last_idx = fw_version.lastIndexOf('.');
+	//fw_version as int value
+	int fw_version_tmp = (fw_version.substring(0,idx)+fw_version.substring(idx+1,last_idx)+fw_version.substring(last_idx+1)).toInt();
+	idx = fw_required.indexOf('.');
+	last_idx = fw_required.lastIndexOf('.');
+	//fw_required as int value
+	int fw_required_tmp = (fw_required.substring(0,idx)+fw_required.substring(idx+1,last_idx)+fw_required.substring(last_idx+1)).toInt();
+	if(fw_version_tmp >= fw_required_tmp)
+		return true;
+	else
+		return false;
+}
+
 int WiFiClass::begin(char* ssid)
 {
 	uint8_t status = WL_IDLE_STATUS;
