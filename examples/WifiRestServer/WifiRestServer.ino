@@ -64,8 +64,8 @@ void loop() {
     // Process request
     process(client);
     // Close connection and free resources.
-    client.stop();
     delay(1);
+    client.stop();
   }
 
   delay(50); // Poll every 50ms
@@ -92,6 +92,8 @@ void process(WiFiClient client) {
 
     // unknow command
     else{
+      client.println("HTTP/1.1 200 OK");
+      client.println();
       client.print(F("error: Unknow "));
       client.print(command);
       client.print(F(" command!"));
@@ -127,6 +129,8 @@ void digitalCommand(WiFiClient client) {
   }
 
   // Send feedback to client
+  client.println("HTTP/1.1 200 OK");
+  client.println();
   client.print(F("Pin D"));
   client.print(pin);
   client.print(F(" set to "));
@@ -163,6 +167,8 @@ void analogCommand(WiFiClient client) {
     analogWrite(pin, value);
 
     // Send feedback to client
+    client.println("HTTP/1.1 200 OK");
+    client.println();
     client.print(F("Pin D"));
     client.print(pin);
     client.print(F(" set to analog "));
@@ -174,6 +180,8 @@ void analogCommand(WiFiClient client) {
     value = analogRead(pin);
 
     // Send feedback to client
+    client.println("HTTP/1.1 200 OK");
+    client.println();
     client.print(F("Pin A"));
     client.print(pin);
     client.print(F(" reads analog "));
@@ -194,6 +202,8 @@ void modeCommand(WiFiClient client) {
   pin = pinNumber.toInt();
   // If the next character is not a '/' we have a malformed URL
   if (c != '/') {
+    client.println("HTTP/1.1 200 OK");
+    client.println();
     client.println(F("error"));
     return;
   }
@@ -203,6 +213,8 @@ void modeCommand(WiFiClient client) {
   if (mode == "input") {
     pinMode(pin, INPUT);
     // Send feedback to client
+    client.println("HTTP/1.1 200 OK");
+    client.println();
     client.print(F("Pin D"));
     client.print(pin);
     client.print(F(" configured as INPUT!"));
@@ -212,12 +224,16 @@ void modeCommand(WiFiClient client) {
   if (mode == "output") {
     pinMode(pin, OUTPUT);
     // Send feedback to client
+    client.println("HTTP/1.1 200 OK");
+    client.println();
     client.print(F("Pin D"));
     client.print(pin);
     client.print(F(" configured as OUTPUT!"));
     return;
   }
 
+  client.println("HTTP/1.1 200 OK");
+  client.println();
   client.print(F("error: invalid mode "));
   client.print(mode);
 
@@ -226,25 +242,21 @@ void modeCommand(WiFiClient client) {
 
 bool listen_service(WiFiClient client, String service){
 
-    //check service
-    String currentLine="";
-    while (client.connected()) {
-      if (client.available()){
-         char c= client.read();
-         currentLine +=c;
-         if (currentLine.endsWith(service+'/')){
-           //client.read();
-           return 1;
-         }
+  //check service
+  String currentLine="";
+  while (client.connected()) {
+    if (client.available()){
+      char c= client.read();
+      currentLine +=c;
+      if (c == '\n') {
+        client.println("HTTP/1.1 200 OK");
+        client.println();
+        return 0;         
       }
-      else{
-          Serial.println(currentLine);
-         client.print(F("error: Not found "));
-         client.print(service);
-         client.print(F(" service in your request"));
-         client.print(F(", please check it"));
-         return 0;
+      else if (currentLine.endsWith(service+"/")){
+        return 1;
       }
+    }
   }
 
 }
