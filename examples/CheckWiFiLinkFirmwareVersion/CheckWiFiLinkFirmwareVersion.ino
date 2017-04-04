@@ -41,7 +41,7 @@ void setup() {
 
   // Check if the required version is installed
   Serial.println();
-  if (fv == WIFI_FIRMWARE_REQUIRED) {
+  if (WiFi.checkFirmwareVersion(WIFI_FIRMWARE_REQUIRED)) {
     Serial.println("Check result: PASSED");
   } else {
     Serial.println("Check result: NOT PASSED");
