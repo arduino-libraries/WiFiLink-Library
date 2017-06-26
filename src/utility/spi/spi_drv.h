@@ -44,9 +44,13 @@
 #define END_TX_PACKET 1
 #define END_32L_PACKET 2
 
-#define SLAVESELECT 31              // ss							      //10 uno, 31 Primo
-#define SLAVEREADY  30               // handshake pin   	    //7 uno, 30 Primo
-//#define WIFILED     9               // led on wifi shield?
+#if defined (ARDUINO_NRF52_PRIMO)
+#define SLAVESELECT 31              // ss primo board            
+#define SLAVEREADY  30              // handshake pin primo board
+#elif defined (ARDUINO_AVR_UNO_WIFI)
+#define SLAVESELECT 10              // ss uno wifi board                 
+#define SLAVEREADY  7               // handshake pin uno wifi board
+#endif
 
 
 #define WAIT_FOR_SLAVE_SELECT()	 \
